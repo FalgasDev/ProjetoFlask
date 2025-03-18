@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 professores = []
 alunos = []
+turmas = []
 
 # ---- Rota Post Professores ---- #
 @app.route('/professores', methods = ['POST'])
@@ -109,7 +110,6 @@ def getStudentById(id):
         if aluno['id'] == int(id):
             data = aluno
             break
-
         
     return jsonify(data)
 
@@ -120,6 +120,20 @@ def deleteStudent(id):
         if aluno['id'] == int(id):
             alunos.remove(aluno)
 
+    return jsonify({'success': True})
+
+# ---- Rota Post Turmas ---- #
+@app.route("/turmas", methods = ['POST'])
+def addTurmas():
+    data = request.json
+    
+    turmas.append({
+        "id": len(turmas) + 1, 
+        "name": data['name'], 
+        "professor": data['professor'], 
+        "status": data['status']
+        })
+    
     return jsonify({'success': True})
     
 if __name__ == '__main__':
