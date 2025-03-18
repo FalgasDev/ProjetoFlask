@@ -154,6 +154,17 @@ def attClass(id):
             turma['status'] = data['status']
 
     return jsonify({'success': True})
+
+# ---- Rota Get Turmas Por ID ---- #
+@app.route("/turmas/<id>", methods = ['GET'])
+def getClassById(id):
+    data = {}
+    for turma in turmas:
+        if turma['id'] == int(id):
+            data = turma
+            break
+    
+    return jsonify(data)
     
 if __name__ == '__main__':
     app.run(debug=True)
