@@ -24,5 +24,19 @@ def getProfessors():
     data = professores
     return jsonify(data)
 
+# ---- Rota Put Professores ---- #
+@app.route("/professores/<id>", methods = ['PUT'])
+def attProfessor(id):
+    data = request.json
+    
+    for professor in professores:
+        if professor['id'] == int(id):
+            professor['name'] = data['name']
+            professor['age'] = data['age']
+            professor['subject'] = data['subject']
+            professor['info'] = data['info']
+
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     app.run(debug=True)
