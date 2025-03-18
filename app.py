@@ -141,6 +141,19 @@ def addTurmas():
 def getClasses():
     data = turmas
     return jsonify(data)
+
+# ---- Rota Put Turmas ---- #
+@app.route("/turmas/<id>", methods = ["PUT"])
+def attClass(id):
+    data = request.json
+
+    for turma in turmas:
+        if turma['id'] == int(id):
+            turma['name'] = data['name']
+            turma['professor'] = data['professor']
+            turma['status'] = data['status']
+
+    return jsonify({'success': True})
     
 if __name__ == '__main__':
     app.run(debug=True)
