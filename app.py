@@ -1,24 +1,39 @@
 from flask import Flask, jsonify, request
+from errors import EmptyStringError, IdNotExist
 
 app = Flask(__name__)
 professores = []
 alunos = []
 turmas = []
+professores_deletados = []
+alunos_deletados = []
+turmas_deletadas = []
 
 # ---- Rota Post Professores ---- #
 @app.route('/professores', methods = ['POST'])
 def addProfessor():
     data = request.json
+    try:
+        if 'name' and 'age' and 'subject' and 'info' not in data:
+            raise KeyError
+        
+        if data['name'] == "" or data['age'] == "" or data['subject'] == "" or data['info'] == "":
+            raise EmptyStringError
 
-    professores.append({
-        "name": data['name'], 
-        "id": len(professores) + 1, 
-        "age": data['age'], 
-        "subject": data['subject'], 
-        "info": data['info']
-        })
-    
-    return jsonify({'success': True})
+        professores.append({
+            "name": data['name'], 
+            "id": len(professores) + len(professores_deletados) + 1, 
+            "age": data['age'], 
+            "subject": data['subject'], 
+            "info": data['info']
+            })
+        
+        return jsonify({'success': True})
+
+    except EmptyStringError:
+        return jsonify({'Error': 'As chaves não podem estar vazias'})
+    except KeyError:
+        return jsonify({'Error': 'Você não passou alguma chave'})
 
 # ---- Rota Get Professores ---- #
 @app.route("/professores", methods = ['GET'])
