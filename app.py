@@ -174,6 +174,15 @@ def deleteClass(id):
             turmas.remove(turma)
     
     return jsonify({'success': True})
+
+# ---- Rota Para Resetar As Listas ---- #
+@app.route("/reseta", methods = ["POST"])
+def resetArrays():
+    alunos.clear()
+    professores.clear()
+    turmas.clear()
+
+    return jsonify({'success': True})
     
 if __name__ == '__main__':
     app.run(debug=True)
