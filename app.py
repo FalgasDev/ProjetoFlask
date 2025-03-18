@@ -135,6 +135,12 @@ def addTurmas():
         })
     
     return jsonify({'success': True})
+
+# ---- Rota Get Turmas ---- #
+@app.route("/turmas", methods = ["GET"])
+def getClasses():
+    data = turmas
+    return jsonify(data)
     
 if __name__ == '__main__':
     app.run(debug=True)
