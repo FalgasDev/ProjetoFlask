@@ -77,5 +77,11 @@ def addStudent():
     
     return jsonify({'success': True})
 
+# ---- Rota Get Alunos ---- #
+@app.route("/alunos", methods = ['GET'])
+def getStudents():
+    data = alunos
+    return jsonify(data)
+
 if __name__ == '__main__':
     app.run(debug=True)
