@@ -165,6 +165,15 @@ def getClassById(id):
             break
     
     return jsonify(data)
+
+# ---- Rota Delete Turmas ---- #
+@app.route("/turmas/<id>", methods = ["DELETE"])
+def deleteClass(id):
+    for turma in turmas:
+        if turma['id'] == int(id):
+            turmas.remove(turma)
+    
+    return jsonify({'success': True})
     
 if __name__ == '__main__':
     app.run(debug=True)
