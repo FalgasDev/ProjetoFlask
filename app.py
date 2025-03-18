@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 professores = []
+alunos = []
 
 # ---- Rota Post Professores ---- #
 @app.route('/professores', methods = ['POST'])
@@ -56,6 +57,24 @@ def deleteProfessor(id):
         if professor['id'] == int(id):
             professores.remove(professor)
         
+    return jsonify({'success': True})
+
+# ---- Rota Post Alunos ---- #
+@app.route('/alunos', methods = ['POST'])
+def addStudent():
+    data = request.json
+    
+    alunos.append({
+        "name": data['name'], 
+        "id": len(alunos) + 1, 
+        "age": data['age'], 
+        "class": data['class'], 
+        "bornDate": data['bornDate'], 
+        "firstGrade": data['firstGrade'], 
+        "secondGrade": data['secondGrade'],
+        "finalAverage": data['finalAverage'] 
+        })
+    
     return jsonify({'success': True})
 
 if __name__ == '__main__':
