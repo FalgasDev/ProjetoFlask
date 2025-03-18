@@ -96,9 +96,22 @@ def attStudent(id):
             aluno['bornDate'] = data['bornDate']
             aluno['firstGrade'] = data['firstGrade']
             aluno['secondGrade'] = data['secondGrade']
-            aluno['finalAverage'] = data['finalAverage']
-    
+            aluno['finalAverage'] = data['finalAverage'] 
+
     return jsonify({'success': True})
+
+# ---- Rota Get Aluno Por ID ---- #
+@app.route("/alunos/<id>", methods = ['GET'])
+def getStudentById(id):
+    data = {}
+    
+    for aluno in alunos:
+        if aluno['id'] == int(id):
+            data = aluno
+            break
+
+        
+    return jsonify(data)
     
 if __name__ == '__main__':
     app.run(debug=True)
