@@ -18,5 +18,11 @@ def addProfessor():
     
     return jsonify({'success': True})
 
+# ---- Rota Get Professores ---- #
+@app.route("/professores", methods = ['GET'])
+def getProfessors():
+    data = professores
+    return jsonify(data)
+
 if __name__ == '__main__':
     app.run(debug=True)
