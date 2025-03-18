@@ -49,5 +49,14 @@ def getProfessorById(id):
         
     return jsonify(data)
 
+# ---- Rota Delete Professores ---- #
+@app.route("/professores/<id>", methods = ['DELETE'])
+def deleteProfessor(id):
+    for professor in professores:
+        if professor['id'] == int(id):
+            professores.remove(professor)
+        
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     app.run(debug=True)
