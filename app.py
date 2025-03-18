@@ -83,5 +83,22 @@ def getStudents():
     data = alunos
     return jsonify(data)
 
+# ---- Rota Put Alunos ---- #
+@app.route("/alunos/<id>", methods = ['PUT'])
+def attStudent(id):
+    data = request.json
+           
+    for aluno in alunos:
+        if aluno['id'] == int(id):
+            aluno['name'] = data['name']
+            aluno['age'] = data['age']
+            aluno['class'] = data['class']
+            aluno['bornDate'] = data['bornDate']
+            aluno['firstGrade'] = data['firstGrade']
+            aluno['secondGrade'] = data['secondGrade']
+            aluno['finalAverage'] = data['finalAverage']
+    
+    return jsonify({'success': True})
+    
 if __name__ == '__main__':
     app.run(debug=True)
