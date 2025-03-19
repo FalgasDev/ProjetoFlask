@@ -502,6 +502,61 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
 
+    # ---- Teste para ver se retorna o erro que o id da classe passada não existe ---- #
+    def test_010_atualiza_ou_adiciona_aluno_com_classe_inexistente(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando aluno ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "age": 20, 
+            "class": 1, 
+            "bornDate": "18/09/2004",
+            "firstGrade": 2, 
+            "secondGrade": 4,
+            "finalAverage": 3 
+            })
+        
+        r = requests.put('http://localhost:5000/alunos/1',json={
+            "name": "Fábio",
+            "age": 22,
+            "class": 60,
+            "bornDate": "28/06/2002", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+        
+        self.assertEqual(r.json()['Error'],'O Id de classe não existe')
+
+        r = requests.post('http://localhost:5000/alunos',json={
+            "name": "Diego",
+            "age": 22,
+            "class": 50, 
+            "bornDate": "28/06/2002", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+        
+        self.assertEqual(r.json()['Error'],'O Id de classe não existe')
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
