@@ -154,22 +154,25 @@ def getStudents():
     data = alunos
     return jsonify(data)
 
-# ---- Rota Put Alunos ---- #
-@app.route("/alunos/<id>", methods = ['PUT'])
-def attStudent(id):
-    data = request.json
-           
-    for aluno in alunos:
-        if aluno['id'] == int(id):
-            aluno['name'] = data['name']
-            aluno['age'] = data['age']
-            aluno['class'] = data['class']
-            aluno['bornDate'] = data['bornDate']
-            aluno['firstGrade'] = data['firstGrade']
-            aluno['secondGrade'] = data['secondGrade']
-            aluno['finalAverage'] = data['finalAverage'] 
-
-    return jsonify({'success': True})
+# ---- Rota Get Aluno Por ID ---- #
+@app.route("/alunos/<id>", methods = ['GET'])
+def getStudentById(id):
+    data = {}
+    idExiste = False
+    try:
+        for aluno in alunos:
+            if aluno['id'] == int(id):
+                data = aluno
+                idExiste = True
+                break
+        
+        if idExiste == False:
+            raise IdNotExist
+        
+        return jsonify(data)
+        
+    except IdNotExist:
+        return jsonify({'Error': 'O Id que você está procurando não existe'})
 
 # ---- Rota Get Aluno Por ID ---- #
 @app.route("/alunos/<id>", methods = ['GET'])
