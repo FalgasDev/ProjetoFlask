@@ -279,6 +279,62 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r_depois.json()['name'],'Brunasser')
         self.assertEqual(r_depois.json()['age'],19)
+        
+    # ---- Testa se o GET retorna todos os alunos ---- #
+    def test_006_retorna_todos_alunos(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando alunos ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "age": 20, 
+            "class": 1, 
+            "bornDate": "18/09/2004", 
+            "firstGrade": 2, 
+            "secondGrade": 4,
+            "finalAverage": 3 
+            })
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Kaio",
+            "age": 18, 
+            "class": 1, 
+            "bornDate": "10/04/2006", 
+            "firstGrade": 5, 
+            "secondGrade": 9,
+            "finalAverage": 7 
+            })
+        
+        acheiFabio = False
+        acheiKaio = False
+
+        r_lista = requests.get('http://localhost:5000/alunos')
+        lista_retornada = r_lista.json()
+
+        for aluno in lista_retornada:
+            if aluno['name'] == 'Fábio':
+                acheiFabio=True
+            if aluno['name'] == 'Kaio':
+                acheiKaio=True
+        if not acheiFabio or not acheiKaio:
+            self.fail("Não retornou todos os alunos")
+
+        self.assertEqual(len(lista_retornada),2)
 
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
