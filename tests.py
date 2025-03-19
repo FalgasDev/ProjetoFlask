@@ -908,6 +908,70 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(dict_retornado['name'],'DevOps')
     
+    # ---- Testa se o DELETE da rota /turmas deleta a turma do id selecionado ---- #
+    def test_021_deleta_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+        
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Banco de Dados",
+            "professor": 1,
+            "active": True
+            })
+        
+        r_lista = requests.get('http://localhost:5000/turmas')
+        lista_retornada = r_lista.json()
+        
+        self.assertEqual(len(lista_retornada),3)
+        
+        requests.delete('http://localhost:5000/turmas/2')
+        
+        r_lista2 = requests.get('http://localhost:5000/turmas')
+        lista_retornada2 = r_lista2.json()
+        
+        self.assertEqual(len(lista_retornada2),2) 
+
+        acheiApi = False
+        acheiBD = False
+        for turma in lista_retornada:
+            if turma['name'] == 'API e Microserviços':
+                acheiApi=True
+            if turma['name'] == 'Banco de Dados':
+                acheiBD=True
+        if not acheiApi or not acheiBD:
+            self.fail("Você pode ter deletado a turma errada!")
+
+        requests.delete('http://localhost:5000/turmas/1')
+
+        r_lista3 = requests.get('http://localhost:5000/turmas')
+        lista_retornada3 = r_lista3.json()
+        
+        self.assertEqual(len(lista_retornada3),1) 
+
+        if lista_retornada3[0]['name'] == 'Banco de Dados':
+            pass
+        else:
+            self.fail("Você pode ter deletado a turma errada!")
+    
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
