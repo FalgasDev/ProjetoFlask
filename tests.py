@@ -137,6 +137,258 @@ class TestStringMethods(unittest.TestCase):
         r_lista_depois = requests.get('http://localhost:5000/professores')
         
         self.assertEqual(len(r_lista_depois.json()),0)
+        
+    # ---- Testa se o DELETE da rota /alunos deleta o aluno do id selecionado ---- #
+    def test_004_deleta_alunos(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+        
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando alunos ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "age": 20, 
+            "class": 1, 
+            "bornDate": "18/09/2004", 
+            "firstGrade": 2, 
+            "secondGrade": 4,
+            "finalAverage": 3 
+            })
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Luiz",
+            "age": 18, 
+            "class": 1, 
+            "bornDate": "25/06/2006", 
+            "firstGrade": 5, 
+            "secondGrade": 7,
+            "finalAverage": 6 
+            })
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Kaio",
+            "age": 18, 
+            "class": 1, 
+            "bornDate": "10/04/2006", 
+            "firstGrade": 5, 
+            "secondGrade": 9,
+            "finalAverage": 7 
+            })
+        
+        r_lista = requests.get('http://localhost:5000/alunos')
+        lista_retornada = r_lista.json()
+        
+        self.assertEqual(len(lista_retornada),3)
+        
+        requests.delete('http://localhost:5000/alunos/2')
+        
+        r_lista2 = requests.get('http://localhost:5000/alunos')
+        lista_retornada2 = r_lista2.json()
+        
+        self.assertEqual(len(lista_retornada2),2) 
+
+        acheiFabio = False
+        acheiKaio = False
+        for aluno in lista_retornada:
+            if aluno['name'] == 'Fábio':
+                acheiFabio=True
+            if aluno['name'] == 'Kaio':
+                acheiKaio=True
+        if not acheiFabio or not acheiKaio:
+            self.fail("Você pode ter deletado o aluno errado!")
+
+        requests.delete('http://localhost:5000/alunos/1')
+
+        r_lista3 = requests.get('http://localhost:5000/alunos')
+        lista_retornada3 = r_lista3.json()
+        
+        self.assertEqual(len(lista_retornada3),1) 
+
+        if lista_retornada3[0]['name'] == 'Kaio':
+            pass
+        else:
+            self.fail("Você pode ter deletado o aluno errado!")
+
+    # ---- Testa se o PUT da rota /alunos atualiza o aluno do id selecionado ---- #
+    def test_005_edita_alunos(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando alunos ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Diego",
+            "age": 22, 
+            "class": 1, 
+            "bornDate": "28/06/2002", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Bruna",
+            "age": 19, 
+            "class": 1, 
+            "bornDate": "30/01/2006", 
+            "firstGrade": 2,
+            "secondGrade": 9,
+            "finalAverage": 4.5 
+            })
+        
+        r_antes = requests.get('http://localhost:5000/alunos/2')
+        
+        self.assertEqual(r_antes.json()['name'],'Bruna')
+
+        requests.put('http://localhost:5000/alunos/2', json={
+            "name": "Brunasser",
+            "age": 19, 
+            "class": 1, 
+            "bornDate": "30/01/2006", 
+            "firstGrade": 2,
+            "secondGrade": 9,
+            "finalAverage": 4.5 
+            })
+        
+        r_depois = requests.get('http://localhost:5000/alunos/2')
+        
+        self.assertEqual(r_depois.json()['name'],'Brunasser')
+        self.assertEqual(r_depois.json()['age'],19)
+        
+    # ---- Testa se o GET retorna todos os alunos ---- #
+    def test_006_retorna_todos_alunos(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando alunos ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "age": 20, 
+            "class": 1, 
+            "bornDate": "18/09/2004", 
+            "firstGrade": 2, 
+            "secondGrade": 4,
+            "finalAverage": 3 
+            })
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Kaio",
+            "age": 18, 
+            "class": 1, 
+            "bornDate": "10/04/2006", 
+            "firstGrade": 5, 
+            "secondGrade": 9,
+            "finalAverage": 7 
+            })
+        
+        acheiFabio = False
+        acheiKaio = False
+
+        r_lista = requests.get('http://localhost:5000/alunos')
+        lista_retornada = r_lista.json()
+
+        for aluno in lista_retornada:
+            if aluno['name'] == 'Fábio':
+                acheiFabio=True
+            if aluno['name'] == 'Kaio':
+                acheiKaio=True
+        if not acheiFabio or not acheiKaio:
+            self.fail("Não retornou todos os alunos")
+
+        self.assertEqual(len(lista_retornada),2)
+
+    # ---- Testa se as rotas em que precisa passar um id retorna o erro falando que não existe o id selecionado ---- #
+    def test_007_id_inexistente_alunos(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando aluno ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "age": 22,
+            "class": 1,
+            "bornDate": "18/09/2004",
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+
+        # ---- Rota PUT ---- #
+        r = requests.put('http://localhost:5000/alunos/30',json={
+            "name": "Fábio",
+            "age": 20, 
+            "class": 1, 
+            "bornDate": "18/09/2004", 
+            "firstGrade": 2, 
+            "secondGrade": 4,
+            "finalAverage": 3 
+            })
+
+        self.assertEqual(r.json()['Error'],'O Id que você quer atualizar não existe')
+
+        # ---- Rota GET ---- #
+        r = requests.get('http://localhost:5000/alunos/50')
+        
+        self.assertEqual(r.json()['Error'],'O Id que você está procurando não existe')
+
+        # ---- Rota DELETE ---- #
+        r = requests.delete('http://localhost:5000/alunos/50')
+        
+        self.assertEqual(r.json()['Error'],'O Id que você quer deletar não existe')
 
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
