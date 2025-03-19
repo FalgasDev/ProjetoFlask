@@ -54,12 +54,12 @@ def getProfessorById(id):
                 break
         
         if not idExiste:
-            raise IdNotExist
+            raise IdNotExist('O Id que você está procurando não existe')
         
         return jsonify(data)
         
-    except IdNotExist:
-        return jsonify({'Error': 'O Id que você está procurando não existe'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
 
 # ---- Rota Put Professores ---- #
 @app.route("/professores/<id>", methods = ['PUT'])
@@ -73,7 +73,7 @@ def attProfessor(id):
                 break
         
         if not idExiste:
-            raise IdNotExist
+            raise IdNotExist('O Id que você quer atualizar não existe')
         
         if 'name' and 'age' and 'subject' and 'info' not in data:
             raise KeyError
@@ -90,8 +90,8 @@ def attProfessor(id):
         
         return jsonify({'success': True})
     
-    except IdNotExist:
-        return jsonify({'Error': 'O Id que você quer atualizar não existe'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
     except EmptyStringError:
         return jsonify({'Error': 'As chaves não podem estar vazias'})
     except KeyError:
@@ -108,7 +108,7 @@ def deleteProfessor(id):
                 break
         
         if not idExiste:
-            raise IdNotExist
+            raise IdNotExist('O Id que você quer deletar não existe')
 
         for professor in professores:
             if professor['id'] == int(id):
@@ -116,19 +116,28 @@ def deleteProfessor(id):
                 professores_deletados.append(professor)
         
         return jsonify({'success': True})
-    except IdNotExist:
-        return jsonify({'Error': 'O Id que você quer deletar não existe'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
 
 # ---- Rota Post Alunos ---- #
 @app.route('/alunos', methods = ['POST'])
 def addStudent():
     data = request.json
+    classeExiste = False
     try:
         if 'name' and 'age' and 'class' and 'bornDate' and 'firstGrade' and 'secondGrade' and 'finalAverage' not in data:
             raise KeyError
         
         if data['name'] == "" or data['age'] == "" or data['class'] == "" or data['bornDate'] == "" or data['firstGrade'] == "" or data['secondGrade'] == "" or data['finalAverage'] == "":
             raise EmptyStringError
+        
+        for turma in turmas:
+            if turma['id'] == data['class']:
+                classeExiste = True
+                break
+
+        if not classeExiste:
+            raise IdNotExist('O Id de classe não existe')
                 
         alunos.append({
             "name": data['name'], 
@@ -147,6 +156,8 @@ def addStudent():
         return jsonify({'Error': 'As chaves não podem estar vazias'})
     except KeyError:
         return jsonify({'Error': 'Você não passou alguma chave'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
 
 # ---- Rota Get Alunos ---- #
 @app.route("/alunos", methods = ['GET'])
@@ -167,18 +178,19 @@ def getStudentById(id):
                 break
         
         if not idExiste:
-            raise IdNotExist
+            raise IdNotExist('O Id que você está procurando não existe')
         
         return jsonify(data)
         
-    except IdNotExist:
-        return jsonify({'Error': 'O Id que você está procurando não existe'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
 
 # ---- Rota Put Alunos ---- #
 @app.route("/alunos/<id>", methods = ['PUT'])
 def attStudent(id):
     data = request.json
     idExiste = False
+    classeExiste = False
     try:
         for aluno in alunos:
             if aluno['id'] == int(id):
@@ -186,13 +198,21 @@ def attStudent(id):
                 break
         
         if not idExiste:
-            raise IdNotExist
+            raise IdNotExist('O Id que você quer atualizar não existe')
         
         if 'name' and 'age' and 'class' and 'bornDate' and 'firstGrade' and 'secondGrade' and 'finalAverage' not in data:
             raise KeyError
         
         if data['name'] == "" or data['age'] == "" or data['class'] == "" or data['bornDate'] == "" or data['firstGrade'] == "" or data['secondGrade'] == "" or data['finalAverage'] == "":
             raise EmptyStringError
+        
+        for turma in turmas:
+            if turma['id'] == data['class']:
+                classeExiste = True
+                break
+
+        if not classeExiste:
+            raise IdNotExist('O Id de classe não existe')
 
         for aluno in alunos:
             if aluno['id'] == int(id):
@@ -206,8 +226,8 @@ def attStudent(id):
         
         return jsonify({'success': True})
     
-    except IdNotExist:
-        return jsonify({'Error': 'O Id que você quer atualizar não existe'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
     except EmptyStringError:
         return jsonify({'Error': 'As chaves não podem estar vazias'})
     except KeyError:
@@ -224,7 +244,7 @@ def deleteStudent(id):
                 break
 
         if not idExiste:
-            raise IdNotExist
+            raise IdNotExist('O Id que você quer deletar não existe')
 
         for aluno in alunos:
             if aluno['id'] == int(id):
@@ -232,19 +252,28 @@ def deleteStudent(id):
                 alunos_deletados.append(aluno)
 
         return jsonify({'success': True})
-    except IdNotExist:
-        return jsonify({'Error': 'O Id que você quer deletar não existe'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
 
 # ---- Rota Post Turmas ---- #
 @app.route("/turmas", methods = ['POST'])
 def addTurmas():
     data = request.json
+    professorExiste = False
     try:
         if 'name' and 'professor' and 'status' not in data:
             raise KeyError
         
         if data['name'] == "" or data['professor'] == "" or data['status'] == "":
             raise EmptyStringError
+        
+        for professor in professores:
+            if professor['id'] == data['professor']:
+                professorExiste = True
+                break
+
+        if not professorExiste:
+            raise IdNotExist('O Id de professor não existe')
 
         turmas.append({
             "id": len(turmas) + len(turmas_deletadas) + 1, 
@@ -259,6 +288,8 @@ def addTurmas():
         return jsonify({'Error': 'As chaves não podem estar vazias'})
     except KeyError:
         return jsonify({'Error': 'Você não passou alguma chave'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
 
 # ---- Rota Get Turmas ---- #
 @app.route("/turmas", methods = ["GET"])
@@ -279,18 +310,19 @@ def getClassById(id):
                 break
         
         if not idExiste:
-            raise IdNotExist
+            raise IdNotExist('O Id que você está procurando não existe')
         
         return jsonify(data)
         
-    except IdNotExist:
-        return jsonify({'Error': 'O Id que você está procurando não existe'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
 
 # ---- Rota Put Turmas ---- #
 @app.route("/turmas/<id>", methods = ["PUT"])
 def attClass(id):
     data = request.json
     idExiste = False
+    professorExiste = False
     try:
         for turma in turmas:
             if turma['id'] == int(id):
@@ -298,13 +330,21 @@ def attClass(id):
                 break
 
         if not idExiste:
-            raise IdNotExist
+            raise IdNotExist('O Id que você quer atualizar não existe')
         
         if 'name' and 'professor' and 'status' not in data:
             raise KeyError
         
         if data['name'] == "" or data['professor'] == "" or data['status'] == "":
             raise EmptyStringError
+        
+        for professor in professores:
+            if professor['id'] == data['professor']:
+                professorExiste = True
+                break
+
+        if not professorExiste:
+            raise IdNotExist('O Id de professor não existe')
 
         for turma in turmas:
                 if turma['id'] == int(id):
@@ -318,8 +358,8 @@ def attClass(id):
         return jsonify({'Error': 'As chaves não podem estar vazias'})
     except KeyError:
         return jsonify({'Error': 'Você não passou alguma chave'})
-    except IdNotExist:
-        return jsonify({'Error': 'O Id que você quer atualizar não existe'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
 
 # ---- Rota Delete Turmas ---- #
 @app.route("/turmas/<id>", methods = ["DELETE"])
@@ -332,7 +372,7 @@ def deleteClass(id):
                 break
 
         if not idExiste:
-            raise IdNotExist
+            raise IdNotExist('O Id que você quer deletar não existe')
 
         for turma in turmas:
             if turma['id'] == int(id):
@@ -341,8 +381,8 @@ def deleteClass(id):
         
         return jsonify({'success': True})
     
-    except IdNotExist:
-        return jsonify({'Error': 'O Id que você quer deletar não existe'})
+    except IdNotExist as e:
+        return jsonify({'Error': e.message})
 
 # ---- Rota Para Resetar As Listas ---- #
 @app.route("/reseta", methods = ["POST"])
