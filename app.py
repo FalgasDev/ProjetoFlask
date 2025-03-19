@@ -239,15 +239,26 @@ def deleteStudent(id):
 @app.route("/turmas", methods = ['POST'])
 def addTurmas():
     data = request.json
+    try:
+        if 'name' and 'professor' and 'status' not in data:
+            raise KeyError
+        
+        if data['name'] == "" or data['professor'] == "" or data['status'] == "":
+            raise EmptyStringError
+
+        turmas.append({
+            "id": len(turmas) + len(turmas_deletadas) + 1, 
+            "name": data['name'], 
+            "professor": data['professor'], 
+            "status": data['status']
+            })
+        
+        return jsonify({'success': True})
     
-    turmas.append({
-        "id": len(turmas) + 1, 
-        "name": data['name'], 
-        "professor": data['professor'], 
-        "status": data['status']
-        })
-    
-    return jsonify({'success': True})
+    except EmptyStringError:
+        return jsonify({'Error': 'As chaves não podem estar vazias'})
+    except KeyError:
+        return jsonify({'Error': 'Você não passou alguma chave'})
 
 # ---- Rota Get Turmas ---- #
 @app.route("/turmas", methods = ["GET"])
@@ -255,38 +266,83 @@ def getClasses():
     data = turmas
     return jsonify(data)
 
-# ---- Rota Put Turmas ---- #
-@app.route("/turmas/<id>", methods = ["PUT"])
-def attClass(id):
-    data = request.json
-
-    for turma in turmas:
-        if turma['id'] == int(id):
-            turma['name'] = data['name']
-            turma['professor'] = data['professor']
-            turma['status'] = data['status']
-
-    return jsonify({'success': True})
-
 # ---- Rota Get Turmas Por ID ---- #
 @app.route("/turmas/<id>", methods = ['GET'])
 def getClassById(id):
     data = {}
-    for turma in turmas:
-        if turma['id'] == int(id):
-            data = turma
-            break
+    idExiste = False
+    try:
+        for turma in turmas:
+            if turma['id'] == int(id):
+                data = turma
+                idExiste = True
+                break
+        
+        if idExiste == False:
+            raise IdNotExist
+        
+        return jsonify(data)
+        
+    except IdNotExist:
+        return jsonify({'Error': 'O Id que você está procurando não existe'})
+
+# ---- Rota Put Turmas ---- #
+@app.route("/turmas/<id>", methods = ["PUT"])
+def attClass(id):
+    data = request.json
+    idExiste = False
+    try:
+        for turma in turmas:
+            if turma['id'] == int(id):
+                idExiste = True
+                break
+
+        if not idExiste:
+            raise IdNotExist
+        
+        if 'name' and 'professor' and 'status' not in data:
+            raise KeyError
+        
+        if data['name'] == "" or data['professor'] == "" or data['status'] == "":
+            raise EmptyStringError
+
+        for turma in turmas:
+                if turma['id'] == int(id):
+                    turma['name'] = data['name']
+                    turma['professor'] = data['professor']
+                    turma['status'] = data['status']
+
+        return jsonify({'success': True})
     
-    return jsonify(data)
+    except EmptyStringError:
+        return jsonify({'Error': 'As chaves não podem estar vazias'})
+    except KeyError:
+        return jsonify({'Error': 'Você não passou alguma chave'})
+    except IdNotExist:
+        return jsonify({'Error': 'O Id que você quer atualizar não existe'})
 
 # ---- Rota Delete Turmas ---- #
 @app.route("/turmas/<id>", methods = ["DELETE"])
 def deleteClass(id):
-    for turma in turmas:
-        if turma['id'] == int(id):
-            turmas.remove(turma)
+    idExiste = False
+    try:
+        for turma in turmas:
+            if turma['id'] == int(id):
+                idExiste = True
+                break
+
+        if not idExiste:
+            raise IdNotExist
+
+        for turma in turmas:
+            if turma['id'] == int(id):
+                turmas.remove(turma)
+                turmas_deletadas.append(turma)
+        
+        return jsonify({'success': True})
     
-    return jsonify({'success': True})
+    except IdNotExist:
+        return jsonify({'Error': 'O Id que você quer deletar não existe'})
 
 # ---- Rota Para Resetar As Listas ---- #
 @app.route("/reseta", methods = ["POST"])
