@@ -286,16 +286,40 @@ def getClassById(id):
     except IdNotExist:
         return jsonify({'Error': 'O Id que você está procurando não existe'})
 
-# ---- Rota Get Turmas Por ID ---- #
-@app.route("/turmas/<id>", methods = ['GET'])
-def getClassById(id):
-    data = {}
-    for turma in turmas:
-        if turma['id'] == int(id):
-            data = turma
-            break
+# ---- Rota Put Turmas ---- #
+@app.route("/turmas/<id>", methods = ["PUT"])
+def attClass(id):
+    data = request.json
+    idExiste = False
+    try:
+        for turma in turmas:
+            if turma['id'] == int(id):
+                idExiste = True
+                break
+
+        if not idExiste:
+            raise IdNotExist
+        
+        if 'name' and 'professor' and 'status' not in data:
+            raise KeyError
+        
+        if data['name'] == "" or data['professor'] == "" or data['status'] == "":
+            raise EmptyStringError
+
+        for turma in turmas:
+                if turma['id'] == int(id):
+                    turma['name'] = data['name']
+                    turma['professor'] = data['professor']
+                    turma['status'] = data['status']
+
+        return jsonify({'success': True})
     
-    return jsonify(data)
+    except EmptyStringError:
+        return jsonify({'Error': 'As chaves não podem estar vazias'})
+    except KeyError:
+        return jsonify({'Error': 'Você não passou alguma chave'})
+    except IdNotExist:
+        return jsonify({'Error': 'O Id que você quer atualizar não existe'})
 
 # ---- Rota Delete Turmas ---- #
 @app.route("/turmas/<id>", methods = ["DELETE"])
