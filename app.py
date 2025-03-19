@@ -53,7 +53,7 @@ def getProfessorById(id):
                 idExiste = True
                 break
         
-        if idExiste == False:
+        if not idExiste:
             raise IdNotExist
         
         return jsonify(data)
@@ -72,7 +72,7 @@ def attProfessor(id):
                 idExiste = True
                 break
         
-        if idExiste == False:
+        if not idExiste:
             raise IdNotExist
         
         if 'name' and 'age' and 'subject' and 'info' not in data:
@@ -107,7 +107,7 @@ def deleteProfessor(id):
                 idExiste = True
                 break
         
-        if idExiste == False:
+        if not idExiste:
             raise IdNotExist
 
         for professor in professores:
@@ -117,7 +117,7 @@ def deleteProfessor(id):
         
         return jsonify({'success': True})
     except IdNotExist:
-        return jsonify({'Error': 'o Id que você quer deletar não existe'})
+        return jsonify({'Error': 'O Id que você quer deletar não existe'})
 
 # ---- Rota Post Alunos ---- #
 @app.route('/alunos', methods = ['POST'])
@@ -166,7 +166,7 @@ def getStudentById(id):
                 idExiste = True
                 break
         
-        if idExiste == False:
+        if not idExiste:
             raise IdNotExist
         
         return jsonify(data)
@@ -185,7 +185,7 @@ def attStudent(id):
                 idExiste = True
                 break
         
-        if idExiste == False:
+        if not idExiste:
             raise IdNotExist
         
         if 'name' and 'age' and 'class' and 'bornDate' and 'firstGrade' and 'secondGrade' and 'finalAverage' not in data:
@@ -278,7 +278,7 @@ def getClassById(id):
                 idExiste = True
                 break
         
-        if idExiste == False:
+        if not idExiste:
             raise IdNotExist
         
         return jsonify(data)
