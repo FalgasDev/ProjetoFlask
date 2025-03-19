@@ -972,6 +972,45 @@ class TestStringMethods(unittest.TestCase):
         else:
             self.fail("Você pode ter deletado a turma errada!")
     
+    # ---- Testa se o PUT da rota /turmas atualiza a turma do id selecionado ---- #
+    def test_022_edita_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+        
+        r_antes = requests.get('http://localhost:5000/turmas/2')
+        
+        self.assertEqual(r_antes.json()['name'],'DevOps')
+
+        requests.put('http://localhost:5000/turmas/2', json={
+            "name": "Banco de Dados",
+            "professor": 1,
+            "active": True
+            })
+        
+        r_depois = requests.get('http://localhost:5000/turmas/2')
+        
+        self.assertEqual(r_depois.json()['name'],'Banco de Dados')
+    
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
