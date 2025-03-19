@@ -739,11 +739,322 @@ class TestStringMethods(unittest.TestCase):
 
         self.assertEqual(len(lista_retornada),2)
 
+    # ---- Testa se as rotas em que precisa passar um id retorna o erro falando que não existe o id selecionado ---- #
+    def test_016_id_inexistente_professores(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
 
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Rota PUT ---- #
+        r = requests.put('http://localhost:5000/professores/30',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+
+        self.assertEqual(r.json()['Error'],'O Id que você quer atualizar não existe')
+
+        # ---- Rota GET ---- #
+        r = requests.get('http://localhost:5000/professores/50')
+        
+        self.assertEqual(r.json()['Error'],'O Id que você está procurando não existe')
+
+        # ---- Rota DELETE ---- #
+        r = requests.delete('http://localhost:5000/professores/50')
+        
+        self.assertEqual(r.json()['Error'],'O Id que você quer deletar não existe')
+
+    # ---- Testa se o PUT e o POST retornam o erro que as chaves não podem tem valores vazios ---- #
+    def test_017_atualiza_ou_adiciona_professor_com_valores_vazios(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+
+        # ---- Chave name com valor vazio ---- #
+        r = requests.put('http://localhost:5000/professores/1',json={
+            "name": "",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+
+        # ---- Chave subject com valor vazio ---- #
+        r = requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "",
+            "info": "Usa óculos"
+            })
+        
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+
+    # ---- Testa se o PUT e o POST retornam o erro que está faltando alguma chave no request ---- #
+    def test_018_atualiza_ou_adiciona_professor_sem_alguma_chave(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        
+        # ---- PUT sem a chave info ---- #
+        r = requests.put('http://localhost:5000/professores/1',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços"
+            })
+        
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+        
+        # ---- POST sem a chave age ---- #
+        r = requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+  
+    # ---- Testa se o POST da rota /turmas está adicionando as turmas ---- #
+    def test_019_adiciona_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+        
+        
+        r_lista = requests.get('http://localhost:5000/turmas')
+        lista_retornada = r_lista.json()
+
+        achei_api = False
+        achei_devops = False
+        for turma in lista_retornada:
+            if turma['name'] == 'API e Microserviços':
+                achei_api = True
+            if turma['name'] == 'DevOps':
+                achei_devops = True
+        
+        if not achei_api:
+            self.fail('Turma API e Microserviços não apareceu na lista de turmas')
+        if not achei_devops:
+            self.fail('Turma DevOps não apareceu na lista de turmas')
+    
+    # ---- Testa se o GET da rota /turmas devolve a turma do id selecionado ---- #
+    def test_020_turma_por_id(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+
+        resposta = requests.get('http://localhost:5000/turmas/2')
+        dict_retornado = resposta.json()
+        self.assertEqual(type(dict_retornado),dict)
+        self.assertIn('name',dict_retornado)
+        
+        self.assertEqual(dict_retornado['name'],'DevOps')
+    
+    # ---- Testa se o DELETE da rota /turmas deleta a turma do id selecionado ---- #
+    def test_021_deleta_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+        
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Banco de Dados",
+            "professor": 1,
+            "active": True
+            })
+        
+        r_lista = requests.get('http://localhost:5000/turmas')
+        lista_retornada = r_lista.json()
+        
+        self.assertEqual(len(lista_retornada),3)
+        
+        requests.delete('http://localhost:5000/turmas/2')
+        
+        r_lista2 = requests.get('http://localhost:5000/turmas')
+        lista_retornada2 = r_lista2.json()
+        
+        self.assertEqual(len(lista_retornada2),2) 
+
+        acheiApi = False
+        acheiBD = False
+        for turma in lista_retornada:
+            if turma['name'] == 'API e Microserviços':
+                acheiApi=True
+            if turma['name'] == 'Banco de Dados':
+                acheiBD=True
+        if not acheiApi or not acheiBD:
+            self.fail("Você pode ter deletado a turma errada!")
+
+        requests.delete('http://localhost:5000/turmas/1')
+
+        r_lista3 = requests.get('http://localhost:5000/turmas')
+        lista_retornada3 = r_lista3.json()
+        
+        self.assertEqual(len(lista_retornada3),1) 
+
+        if lista_retornada3[0]['name'] == 'Banco de Dados':
+            pass
+        else:
+            self.fail("Você pode ter deletado a turma errada!")
+    
+    # ---- Testa se o PUT da rota /turmas atualiza a turma do id selecionado ---- #
+    def test_022_edita_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+        
+        r_antes = requests.get('http://localhost:5000/turmas/2')
+        
+        self.assertEqual(r_antes.json()['name'],'DevOps')
+
+        requests.put('http://localhost:5000/turmas/2', json={
+            "name": "Banco de Dados",
+            "professor": 1,
+            "active": True
+            })
+        
+        r_depois = requests.get('http://localhost:5000/turmas/2')
+        
+        self.assertEqual(r_depois.json()['name'],'Banco de Dados')
+    
+    # ---- Testa se o GET retorna todas as turmas ---- #
+    def test_023_retorna_todas_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+  
+        acheiApi = False
+        acheiDevOps = False
+
+        r_lista = requests.get('http://localhost:5000/turmas')
+        lista_retornada = r_lista.json()
+
+        for turma in lista_retornada:
+            if turma['name'] == 'API e Microserviços':
+                acheiApi=True
+            if turma['name'] == 'DevOps':
+                acheiDevOps=True
+        if not acheiApi or not acheiDevOps:
+            self.fail("Não retornou todas as turmas")
+
+        self.assertEqual(len(lista_retornada),2)
+    
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
-
-
+    
 if __name__ == '__main__':
     runTests()
