@@ -390,6 +390,63 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r.json()['Error'],'O Id que você quer deletar não existe')
 
+    # ---- Testa se o PUT e o POST retornam o erro que as chaves não podem tem valores vazios ---- #
+    def test_008_atualiza_ou_adiciona_aluno_com_valores_vazios(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando aluno ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Diego",
+            "age": 22, 
+            "class": 1, 
+            "bornDate": "28/06/2002", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+
+        # ---- Chave name com valor vazio ---- #
+        r = requests.put('http://localhost:5000/alunos/1',json={
+            "name": "",
+            "age": 22, 
+            "class": 1, 
+            "bornDate": "28/06/2002", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+        
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+
+        # ---- Chave bornDate com valor vazio ---- #
+        r = requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "age": 22, 
+            "class": 1, 
+            "bornDate": "", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+        
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
