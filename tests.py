@@ -53,6 +53,36 @@ class TestStringMethods(unittest.TestCase):
             self.fail('aluno fernando nao apareceu na lista de alunos')
         if not achei_luiz:
             self.fail('aluno roberto nao apareceu na lista de alunos')
+            
+    # ---- Testa se o GET da rota /alunos devolve o aluno do id selecionado ---- #
+    def test_002_aluno_por_id(self):
+        requests.post('http://localhost:5000/reseta')
+
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Kaio",
+            "age": 18, 
+            "class": 1, 
+            "bornDate": "10/04/2006", 
+            "firstGrade": 5, 
+            "secondGrade": 9,
+            "finalAverage": 7 
+            })
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Diego",
+            "age": 22, 
+            "class": 1, 
+            "bornDate": "28/06/2002", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+
+        resposta = requests.get('http://localhost:5000/alunos/2')
+        dict_retornado = resposta.json()
+        self.assertEqual(type(dict_retornado),dict)
+        self.assertIn('name',dict_retornado)
+        
+        self.assertEqual(dict_retornado['name'],'Diego')
 
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
