@@ -221,6 +221,65 @@ class TestStringMethods(unittest.TestCase):
         else:
             self.fail("Você pode ter deletado o aluno errado!")
 
+    # ---- Testa se o PUT da rota /alunos atualiza o aluno do id selecionado ---- #
+    def test_005_edita_alunos(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando alunos ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Diego",
+            "age": 22, 
+            "class": 1, 
+            "bornDate": "28/06/2002", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Bruna",
+            "age": 19, 
+            "class": 1, 
+            "bornDate": "30/01/2006", 
+            "firstGrade": 2,
+            "secondGrade": 9,
+            "finalAverage": 4.5 
+            })
+        
+        r_antes = requests.get('http://localhost:5000/alunos/2')
+        
+        self.assertEqual(r_antes.json()['name'],'Bruna')
+
+        requests.put('http://localhost:5000/alunos/2', json={
+            "name": "Brunasser",
+            "age": 19, 
+            "class": 1, 
+            "bornDate": "30/01/2006", 
+            "firstGrade": 2,
+            "secondGrade": 9,
+            "finalAverage": 4.5 
+            })
+        
+        r_depois = requests.get('http://localhost:5000/alunos/2')
+        
+        self.assertEqual(r_depois.json()['name'],'Brunasser')
+        self.assertEqual(r_depois.json()['age'],19)
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
