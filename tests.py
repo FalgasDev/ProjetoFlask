@@ -613,6 +613,64 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(dict_retornado['name'],'Odair')
 
+    # ---- Testa se o DELETE da rota /professores deleta o professor do id selecionado ---- #
+    def test_013_deleta_professores(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+        
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Vitor",
+            "age": 26,
+            "subject": "Banco de Dados",
+            "info": "Bombado"
+            })
+        
+        r_lista = requests.get('http://localhost:5000/professores')
+        lista_retornada = r_lista.json()
+        
+        self.assertEqual(len(lista_retornada),3)
+        
+        requests.delete('http://localhost:5000/professores/2')
+        
+        r_lista2 = requests.get('http://localhost:5000/professores')
+        lista_retornada2 = r_lista2.json()
+        
+        self.assertEqual(len(lista_retornada2),2) 
+
+        acheiCaio = False
+        acheiVitor = False
+        for professor in lista_retornada:
+            if professor['name'] == 'Caio':
+                acheiCaio=True
+            if professor['name'] == 'Vitor':
+                acheiVitor=True
+        if not acheiCaio or not acheiVitor:
+            self.fail("Você pode ter deletado o professor errado!")
+
+        requests.delete('http://localhost:5000/professores/1')
+
+        r_lista3 = requests.get('http://localhost:5000/professores')
+        lista_retornada3 = r_lista3.json()
+        
+        self.assertEqual(len(lista_retornada3),1) 
+
+        if lista_retornada3[0]['name'] == 'Vitor':
+            pass
+        else:
+            self.fail("Você pode ter deletado o professor errado!")
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
