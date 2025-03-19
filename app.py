@@ -100,11 +100,24 @@ def attProfessor(id):
 # ---- Rota Delete Professores ---- #
 @app.route("/professores/<id>", methods = ['DELETE'])
 def deleteProfessor(id):
-    for professor in professores:
-        if professor['id'] == int(id):
-            professores.remove(professor)
+    idExiste = False
+    try:
+        for professor in professores:
+            if professor['id'] == int(id):
+                idExiste = True
+                break
         
-    return jsonify({'success': True})
+        if idExiste == False:
+            raise IdNotExist
+
+        for professor in professores:
+            if professor['id'] == int(id):
+                professores.remove(professor)
+                professores_deletados.append(professor)
+        
+        return jsonify({'success': True})
+    except IdNotExist:
+        return jsonify({'Error': 'o Id que você quer deletar não existe'})
 
 # ---- Rota Post Alunos ---- #
 @app.route('/alunos', methods = ['POST'])
