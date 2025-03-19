@@ -174,17 +174,44 @@ def getStudentById(id):
     except IdNotExist:
         return jsonify({'Error': 'O Id que você está procurando não existe'})
 
-# ---- Rota Get Aluno Por ID ---- #
-@app.route("/alunos/<id>", methods = ['GET'])
-def getStudentById(id):
-    data = {}
-    
-    for aluno in alunos:
-        if aluno['id'] == int(id):
-            data = aluno
-            break
+# ---- Rota Put Alunos ---- #
+@app.route("/alunos/<id>", methods = ['PUT'])
+def attStudent(id):
+    data = request.json
+    idExiste = False
+    try:
+        for aluno in alunos:
+            if aluno['id'] == int(id):
+                idExiste = True
+                break
         
-    return jsonify(data)
+        if idExiste == False:
+            raise Exception
+        
+        if 'name' and 'age' and 'class' and 'bornDate' and 'firstGrade' and 'secondGrade' and 'finalAverage' not in data:
+            raise KeyError
+        
+        if data['name'] == "" or data['age'] == "" or data['class'] == "" or data['bornDate'] == "" or data['firstGrade'] == "" or data['secondGrade'] == "" or data['finalAverage'] == "":
+            raise EmptyStringError
+
+        for aluno in alunos:
+            if aluno['id'] == int(id):
+                aluno['name'] = data['name']
+                aluno['age'] = data['age']
+                aluno['class'] = data['class']
+                aluno['bornDate'] = data['bornDate']
+                aluno['firstGrade'] = data['firstGrade']
+                aluno['secondGrade'] = data['secondGrade']
+                aluno['finalAverage'] = data['finalAverage']
+        
+        return jsonify({'success': True})
+    
+    except Exception: 
+        return jsonify({'Error': 'O Id que você quer atualizar não existe'})
+    except EmptyStringError:
+        return jsonify({'Error': 'As chaves não podem estar vazias'})
+    except KeyError:
+        return jsonify({'Error': 'Você não passou alguma chave'})
 
 # ---- Rota Delete Alunos ---- #
 @app.route("/alunos/<id>", methods = ['DELETE'])
