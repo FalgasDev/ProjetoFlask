@@ -771,10 +771,41 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r.json()['Error'],'O Id que você quer deletar não existe')
 
+    # ---- Testa se o PUT e o POST retornam o erro que as chaves não podem tem valores vazios ---- #
+    def test_017_atualiza_ou_adiciona_professor_com_valores_vazios(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+
+        # ---- Chave name com valor vazio ---- #
+        r = requests.put('http://localhost:5000/professores/1',json={
+            "name": "",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+
+        # ---- Chave subject com valor vazio ---- #
+        r = requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "",
+            "info": "Usa óculos"
+            })
+        
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
-
-
+    
 if __name__ == '__main__':
     runTests()
