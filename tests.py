@@ -19,6 +19,22 @@ class TestStringMethods(unittest.TestCase):
 
     # ---- Testa se o POST da rota /alunos está adicionando os alunos ---- #
     def test_001_adiciona_alunos(self):
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando alunos ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Fábio",
             "age": 20, 
@@ -56,8 +72,25 @@ class TestStringMethods(unittest.TestCase):
             
     # ---- Testa se o GET da rota /alunos devolve o aluno do id selecionado ---- #
     def test_002_aluno_por_id(self):
-        requests.post('http://localhost:5000/reseta')
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
 
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando alunos ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Kaio",
             "age": 18, 
@@ -84,19 +117,16 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(dict_retornado['name'],'Diego')
         
-    # ---- Testa se a rota /reseta apaga todos os dados da lista alunos ---- #
+    # ---- Testa se a rota /reseta apaga todos os dados da lista professores ---- #
     def test_003_reseta(self):
-        requests.post('http://localhost:5000/alunos',json={
-            "name": "Bruna",
-            "age": 19, 
-            "class": 1, 
-            "bornDate": "30/01/2006", 
-            "firstGrade": 2,
-            "secondGrade": 9,
-            "finalAverage": 4.5 
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
             })
         
-        r_lista = requests.get('http://localhost:5000/alunos')
+        r_lista = requests.get('http://localhost:5000/professores')
 
         self.assertTrue(len(r_lista.json()) > 0)
 
