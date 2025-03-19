@@ -134,7 +134,7 @@ class TestStringMethods(unittest.TestCase):
 
         self.assertEqual(r_reset.status_code,200)
 
-        r_lista_depois = requests.get('http://localhost:5000/alunos')
+        r_lista_depois = requests.get('http://localhost:5000/professores')
         
         self.assertEqual(len(r_lista_depois.json()),0)
 
