@@ -324,11 +324,25 @@ def attClass(id):
 # ---- Rota Delete Turmas ---- #
 @app.route("/turmas/<id>", methods = ["DELETE"])
 def deleteClass(id):
-    for turma in turmas:
-        if turma['id'] == int(id):
-            turmas.remove(turma)
+    idExiste = False
+    try:
+        for turma in turmas:
+            if turma['id'] == int(id):
+                idExiste = True
+                break
+
+        if not idExiste:
+            raise IdNotExist
+
+        for turma in turmas:
+            if turma['id'] == int(id):
+                turmas.remove(turma)
+                turmas_deletadas.append(turma)
+        
+        return jsonify({'success': True})
     
-    return jsonify({'success': True})
+    except IdNotExist:
+        return jsonify({'Error': 'O Id que você quer deletar não existe'})
 
 # ---- Rota Para Resetar As Listas ---- #
 @app.route("/reseta", methods = ["POST"])
