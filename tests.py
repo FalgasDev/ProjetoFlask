@@ -876,6 +876,38 @@ class TestStringMethods(unittest.TestCase):
         if not achei_devops:
             self.fail('Turma DevOps não apareceu na lista de turmas')
     
+    # ---- Testa se o GET da rota /turmas devolve a turma do id selecionado ---- #
+    def test_020_turma_por_id(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+
+        resposta = requests.get('http://localhost:5000/turmas/2')
+        dict_retornado = resposta.json()
+        self.assertEqual(type(dict_retornado),dict)
+        self.assertIn('name',dict_retornado)
+        
+        self.assertEqual(dict_retornado['name'],'DevOps')
+    
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
