@@ -1051,6 +1051,155 @@ class TestStringMethods(unittest.TestCase):
             self.fail("Não retornou todas as turmas")
 
         self.assertEqual(len(lista_retornada),2)
+
+    # ---- Testa se as rotas em que precisa passar um id retorna o erro falando que não existe o id selecionado ---- #
+    def test_024_id_inexistente_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        
+        # ---- Rota PUT ---- #
+        r = requests.put('http://localhost:5000/turmas/30',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+
+        self.assertEqual(r.json()['Error'],'O Id que você quer atualizar não existe')
+
+        # ---- Rota GET ---- #
+        r = requests.get('http://localhost:5000/turmas/50')
+        
+        self.assertEqual(r.json()['Error'],'O Id que você está procurando não existe')
+
+        # ---- Rota DELETE ---- #
+        r = requests.delete('http://localhost:5000/turmas/50')
+        
+        self.assertEqual(r.json()['Error'],'O Id que você quer deletar não existe')
+
+    # ---- Testa se o PUT e o POST retornam o erro que as chaves não podem tem valores vazios ---- #
+    def test_025_atualiza_ou_adiciona_turma_com_valores_vazios(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Chave name com valor vazio ---- #
+        r = requests.put('http://localhost:5000/turmas/1',json={
+            "name": "",
+            "professor": 1,
+            "active": True
+            })
+        
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+
+        # ---- Chave name com valor vazio ---- #
+        r = requests.post('http://localhost:5000/turmas',json={
+            "name": "",
+            "professor": 1,
+            "active": True
+            })
+        
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+
+    # ---- Testa se o PUT e o POST retornam o erro que está faltando alguma chave no request ---- #
+    def test_026_atualiza_ou_adiciona_turma_sem_alguma_chave(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        
+        # ---- PUT sem a chave professor ---- #
+        r = requests.put('http://localhost:5000/turmas/1',json={
+            "name": "API e Microserviços",
+            "active": True
+            })
+        
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+        
+        # ---- POST sem a chave active ---- #
+        r = requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1
+            })
+        
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+
+    # ---- Teste para ver se retorna o erro que o id do professor passado não existe ---- #
+    def test_027_atualiza_ou_adiciona_turma_com_professor_inexistente(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        r = requests.put('http://localhost:5000/turmas/1',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 20,
+            "active": True
+            })
+        
+        self.assertEqual(r.json()['Error'],'O Id de professor não existe')
+
+        r = requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 50,
+            "active": True
+            })
+        
+        self.assertEqual(r.json()['Error'],'O Id de professor não existe')
     
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
