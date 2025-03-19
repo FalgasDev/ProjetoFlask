@@ -671,6 +671,41 @@ class TestStringMethods(unittest.TestCase):
         else:
             self.fail("Você pode ter deletado o professor errado!")
 
+    # ---- Testa se o PUT da rota /professores atualiza o professor do id selecionado ---- #
+    def test_014_edita_professores(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+        
+        r_antes = requests.get('http://localhost:5000/professores/2')
+        
+        self.assertEqual(r_antes.json()['name'],'Odair')
+
+        requests.put('http://localhost:5000/professores/2', json={
+            "name": "Vitor",
+            "age": 32,
+            "subject": "Banco de Dados",
+            "info": "Bombado"
+            })
+        
+        r_depois = requests.get('http://localhost:5000/professores/2')
+        
+        self.assertEqual(r_depois.json()['name'],'Vitor')
+        self.assertEqual(r_depois.json()['age'],32)
+
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
