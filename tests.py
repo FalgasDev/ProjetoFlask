@@ -557,6 +557,37 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r.json()['Error'],'O Id de classe não existe')
 
+    # ---- Testa se o POST da rota /professores está adicionando os professores ---- #
+    def test_011_adiciona_professores(self):
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+        
+        r_lista = requests.get('http://localhost:5000/professores')
+        lista_retornada = r_lista.json()
+
+        achei_caio = False
+        achei_odair = False
+        for professor in lista_retornada:
+            if professor['name'] == 'Caio':
+                achei_caio = True
+            if professor['name'] == 'Odair':
+                achei_odair = True
+        
+        if not achei_caio:
+            self.fail('Professor Caio não apareceu na lista de professores')
+        if not achei_odair:
+            self.fail('Professor Odair não apareceu na lista de professores')
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
