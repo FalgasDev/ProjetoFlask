@@ -705,6 +705,40 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(r_depois.json()['name'],'Vitor')
         self.assertEqual(r_depois.json()['age'],32)
 
+    # ---- Testa se o GET retorna todos os professores ---- #
+    def test_015_retorna_todos_professores(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+  
+        acheiCaio = False
+        acheiOdair = False
+
+        r_lista = requests.get('http://localhost:5000/professores')
+        lista_retornada = r_lista.json()
+
+        for professor in lista_retornada:
+            if professor['name'] == 'Caio':
+                acheiCaio=True
+            if professor['name'] == 'Odair':
+                acheiOdair=True
+        if not acheiCaio or not acheiOdair:
+            self.fail("Não retornou todos os professores")
+
+        self.assertEqual(len(lista_retornada),2)
+
 
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
