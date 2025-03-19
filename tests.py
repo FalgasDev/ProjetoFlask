@@ -1164,6 +1164,42 @@ class TestStringMethods(unittest.TestCase):
             })
         
         self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+
+    # ---- Teste para ver se retorna o erro que o id do professor passado não existe ---- #
+    def test_027_atualiza_ou_adiciona_turma_com_professor_inexistente(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        r = requests.put('http://localhost:5000/turmas/1',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 20,
+            "active": True
+            })
+        
+        self.assertEqual(r.json()['Error'],'O Id de professor não existe')
+
+        r = requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 50,
+            "active": True
+            })
+        
+        self.assertEqual(r.json()['Error'],'O Id de professor não existe')
     
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
