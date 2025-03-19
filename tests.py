@@ -83,6 +83,30 @@ class TestStringMethods(unittest.TestCase):
         self.assertIn('name',dict_retornado)
         
         self.assertEqual(dict_retornado['name'],'Diego')
+        
+    # ---- Testa se a rota /reseta apaga todos os dados da lista alunos ---- #
+    def test_003_reseta(self):
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Bruna",
+            "age": 19, 
+            "class": 1, 
+            "bornDate": "30/01/2006", 
+            "firstGrade": 2,
+            "secondGrade": 9,
+            "finalAverage": 4.5 
+            })
+        
+        r_lista = requests.get('http://localhost:5000/alunos')
+
+        self.assertTrue(len(r_lista.json()) > 0)
+
+        r_reset = requests.post('http://localhost:5000/reseta')
+
+        self.assertEqual(r_reset.status_code,200)
+
+        r_lista_depois = requests.get('http://localhost:5000/alunos')
+        
+        self.assertEqual(len(r_lista_depois.json()),0)
 
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
