@@ -350,6 +350,9 @@ def resetArrays():
     alunos.clear()
     professores.clear()
     turmas.clear()
+    professores_deletados.clear()
+    alunos_deletados.clear()
+    turmas_deletadas.clear()
 
     return jsonify({'success': True})
     
