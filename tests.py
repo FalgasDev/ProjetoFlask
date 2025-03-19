@@ -2,16 +2,33 @@ import requests
 import unittest
 
 class TestStringMethods(unittest.TestCase):
-    # ---- Testa se o GET da rota /alunos devolve uma lista ---- #
-    def test_000_alunos_retorna_lista(self):
+    # ---- Testa se o GET da rotas /alunos, /professores e /turmas devolvem uma lista ---- #
+    def test_000_rotas_retornam_lista(self):
+        # ---- Rota alunos ---- #
         r = requests.get('http://localhost:5000/alunos')
-
-        if r.status_code == 404:
-            self.fail("voce nao definiu a pagina /alunos no seu server")
 
         try:
             obj_retornado = r.json()
+        except:
+            self.fail("queria um json mas voce retornou outra coisa")
 
+        self.assertEqual(type(obj_retornado),type([]))
+
+        # ---- Rota professores ---- #
+        r = requests.get('http://localhost:5000/professores')
+
+        try:
+            obj_retornado = r.json()
+        except:
+            self.fail("queria um json mas voce retornou outra coisa")
+
+        self.assertEqual(type(obj_retornado),type([]))
+
+        # ---- Rota turmas ---- #
+        r = requests.get('http://localhost:5000/turmas')
+
+        try:
+            obj_retornado = r.json()
         except:
             self.fail("queria um json mas voce retornou outra coisa")
 
@@ -66,9 +83,9 @@ class TestStringMethods(unittest.TestCase):
                 achei_luiz = True
         
         if not achei_fabio:
-            self.fail('aluno fernando nao apareceu na lista de alunos')
+            self.fail('Aluno Fábio nao apareceu na lista de alunos')
         if not achei_luiz:
-            self.fail('aluno roberto nao apareceu na lista de alunos')
+            self.fail('Aluno Luiz nao apareceu na lista de alunos')
             
     # ---- Testa se o GET da rota /alunos devolve o aluno do id selecionado ---- #
     def test_002_aluno_por_id(self):
@@ -117,27 +134,51 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(dict_retornado['name'],'Diego')
         
-    # ---- Testa se a rota /reseta apaga todos os dados da lista professores ---- #
+    # ---- Testa se a rota /reseta apaga todos os dados das listas de professores, alunos e turmas ---- #
     def test_003_reseta(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
         requests.post('http://localhost:5000/professores',json={
             "name": "Caio",
             "age": 26,
             "subject": "API e Microserviços",
             "info": "Tem tatuagem"
             })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Kaio",
+            "age": 18, 
+            "class": 1, 
+            "bornDate": "10/04/2006", 
+            "firstGrade": 5, 
+            "secondGrade": 9,
+            "finalAverage": 7 
+            })
         
         r_lista = requests.get('http://localhost:5000/professores')
+        r_lista2 = requests.get('http://localhost:5000/turmas')
+        r_lista3 = requests.get('http://localhost:5000/alunos')
 
         self.assertTrue(len(r_lista.json()) > 0)
+        self.assertTrue(len(r_lista2.json()) > 0)
+        self.assertTrue(len(r_lista3.json()) > 0)
 
         r_reset = requests.post('http://localhost:5000/reseta')
-
         self.assertEqual(r_reset.status_code,200)
 
         r_lista_depois = requests.get('http://localhost:5000/professores')
+        r_lista2_depois = requests.get('http://localhost:5000/turmas')
+        r_lista3_depois = requests.get('http://localhost:5000/alunos')
         
         self.assertEqual(len(r_lista_depois.json()),0)
-        
+        self.assertEqual(len(r_lista2_depois.json()),0)
+        self.assertEqual(len(r_lista3_depois.json()),0)
+
     # ---- Testa se o DELETE da rota /alunos deleta o aluno do id selecionado ---- #
     def test_004_deleta_alunos(self):
         r_reset = requests.post('http://localhost:5000/reseta')
@@ -279,7 +320,7 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r_depois.json()['name'],'Brunasser')
         self.assertEqual(r_depois.json()['age'],19)
-        
+
     # ---- Testa se o GET retorna todos os alunos ---- #
     def test_006_retorna_todos_alunos(self):
         r_reset = requests.post('http://localhost:5000/reseta')
@@ -587,7 +628,7 @@ class TestStringMethods(unittest.TestCase):
             self.fail('Professor Caio não apareceu na lista de professores')
         if not achei_odair:
             self.fail('Professor Odair não apareceu na lista de professores')
-
+            
     # ---- Testa se o GET da rota /professores devolve o professor do id selecionado ---- #
     def test_012_professor_por_id(self):
         r_reset = requests.post('http://localhost:5000/reseta')
@@ -833,7 +874,7 @@ class TestStringMethods(unittest.TestCase):
             })
         
         self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
-  
+
     # ---- Testa se o POST da rota /turmas está adicionando as turmas ---- #
     def test_019_adiciona_turmas(self):
         r_reset = requests.post('http://localhost:5000/reseta')
@@ -875,7 +916,7 @@ class TestStringMethods(unittest.TestCase):
             self.fail('Turma API e Microserviços não apareceu na lista de turmas')
         if not achei_devops:
             self.fail('Turma DevOps não apareceu na lista de turmas')
-    
+            
     # ---- Testa se o GET da rota /turmas devolve a turma do id selecionado ---- #
     def test_020_turma_por_id(self):
         r_reset = requests.post('http://localhost:5000/reseta')
@@ -907,7 +948,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertIn('name',dict_retornado)
         
         self.assertEqual(dict_retornado['name'],'DevOps')
-    
+
     # ---- Testa se o DELETE da rota /turmas deleta a turma do id selecionado ---- #
     def test_021_deleta_turmas(self):
         r_reset = requests.post('http://localhost:5000/reseta')
@@ -971,7 +1012,7 @@ class TestStringMethods(unittest.TestCase):
             pass
         else:
             self.fail("Você pode ter deletado a turma errada!")
-    
+
     # ---- Testa se o PUT da rota /turmas atualiza a turma do id selecionado ---- #
     def test_022_edita_turmas(self):
         r_reset = requests.post('http://localhost:5000/reseta')
@@ -1010,7 +1051,7 @@ class TestStringMethods(unittest.TestCase):
         r_depois = requests.get('http://localhost:5000/turmas/2')
         
         self.assertEqual(r_depois.json()['name'],'Banco de Dados')
-    
+
     # ---- Testa se o GET retorna todas as turmas ---- #
     def test_023_retorna_todas_turmas(self):
         r_reset = requests.post('http://localhost:5000/reseta')
@@ -1200,10 +1241,10 @@ class TestStringMethods(unittest.TestCase):
             })
         
         self.assertEqual(r.json()['Error'],'O Id de professor não existe')
-    
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
-    
+
 if __name__ == '__main__':
     runTests()
