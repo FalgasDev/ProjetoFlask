@@ -216,11 +216,24 @@ def attStudent(id):
 # ---- Rota Delete Alunos ---- #
 @app.route("/alunos/<id>", methods = ['DELETE'])
 def deleteStudent(id):
-    for aluno in alunos:
-        if aluno['id'] == int(id):
-            alunos.remove(aluno)
+    idExiste = False
+    try:
+        for aluno in alunos:
+            if aluno['id'] == int(id):
+                idExiste = True
+                break
 
-    return jsonify({'success': True})
+        if not idExiste:
+            raise IdNotExist
+
+        for aluno in alunos:
+            if aluno['id'] == int(id):
+                alunos.remove(aluno)
+                alunos_deletados.append(aluno)
+
+        return jsonify({'success': True})
+    except IdNotExist:
+        return jsonify({'Error': 'O Id que você quer deletar não existe'})
 
 # ---- Rota Post Turmas ---- #
 @app.route("/turmas", methods = ['POST'])
