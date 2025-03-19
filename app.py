@@ -266,18 +266,25 @@ def getClasses():
     data = turmas
     return jsonify(data)
 
-# ---- Rota Put Turmas ---- #
-@app.route("/turmas/<id>", methods = ["PUT"])
-def attClass(id):
-    data = request.json
-
-    for turma in turmas:
-        if turma['id'] == int(id):
-            turma['name'] = data['name']
-            turma['professor'] = data['professor']
-            turma['status'] = data['status']
-
-    return jsonify({'success': True})
+# ---- Rota Get Turmas Por ID ---- #
+@app.route("/turmas/<id>", methods = ['GET'])
+def getClassById(id):
+    data = {}
+    idExiste = False
+    try:
+        for turma in turmas:
+            if turma['id'] == int(id):
+                data = turma
+                idExiste = True
+                break
+        
+        if idExiste == False:
+            raise IdNotExist
+        
+        return jsonify(data)
+        
+    except IdNotExist:
+        return jsonify({'Error': 'O Id que você está procurando não existe'})
 
 # ---- Rota Get Turmas Por ID ---- #
 @app.route("/turmas/<id>", methods = ['GET'])
