@@ -239,15 +239,26 @@ def deleteStudent(id):
 @app.route("/turmas", methods = ['POST'])
 def addTurmas():
     data = request.json
+    try:
+        if 'name' and 'professor' and 'status' not in data:
+            raise KeyError
+        
+        if data['name'] == "" or data['professor'] == "" or data['status'] == "":
+            raise EmptyStringError
+
+        turmas.append({
+            "id": len(turmas) + len(turmas_deletadas) + 1, 
+            "name": data['name'], 
+            "professor": data['professor'], 
+            "status": data['status']
+            })
+        
+        return jsonify({'success': True})
     
-    turmas.append({
-        "id": len(turmas) + 1, 
-        "name": data['name'], 
-        "professor": data['professor'], 
-        "status": data['status']
-        })
-    
-    return jsonify({'success': True})
+    except EmptyStringError:
+        return jsonify({'Error': 'As chaves não podem estar vazias'})
+    except KeyError:
+        return jsonify({'Error': 'Você não passou alguma chave'})
 
 # ---- Rota Get Turmas ---- #
 @app.route("/turmas", methods = ["GET"])
