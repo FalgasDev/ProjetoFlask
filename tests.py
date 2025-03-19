@@ -1011,6 +1011,47 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r_depois.json()['name'],'Banco de Dados')
     
+    # ---- Testa se o GET retorna todas as turmas ---- #
+    def test_023_retorna_todas_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+  
+        acheiApi = False
+        acheiDevOps = False
+
+        r_lista = requests.get('http://localhost:5000/turmas')
+        lista_retornada = r_lista.json()
+
+        for turma in lista_retornada:
+            if turma['name'] == 'API e Microserviços':
+                acheiApi=True
+            if turma['name'] == 'DevOps':
+                acheiDevOps=True
+        if not acheiApi or not acheiDevOps:
+            self.fail("Não retornou todas as turmas")
+
+        self.assertEqual(len(lista_retornada),2)
+    
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
