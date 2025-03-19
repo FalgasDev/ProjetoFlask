@@ -186,7 +186,7 @@ def attStudent(id):
                 break
         
         if idExiste == False:
-            raise Exception
+            raise IdNotExist
         
         if 'name' and 'age' and 'class' and 'bornDate' and 'firstGrade' and 'secondGrade' and 'finalAverage' not in data:
             raise KeyError
@@ -206,7 +206,7 @@ def attStudent(id):
         
         return jsonify({'success': True})
     
-    except Exception: 
+    except IdNotExist:
         return jsonify({'Error': 'O Id que você quer atualizar não existe'})
     except EmptyStringError:
         return jsonify({'Error': 'As chaves não podem estar vazias'})
