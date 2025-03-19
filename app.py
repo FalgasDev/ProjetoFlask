@@ -123,19 +123,30 @@ def deleteProfessor(id):
 @app.route('/alunos', methods = ['POST'])
 def addStudent():
     data = request.json
+    try:
+        if 'name' and 'age' and 'class' and 'bornDate' and 'firstGrade' and 'secondGrade' and 'finalAverage' not in data:
+            raise KeyError
+        
+        if data['name'] == "" or data['age'] == "" or data['class'] == "" or data['bornDate'] == "" or data['firstGrade'] == "" or data['secondGrade'] == "" or data['finalAverage'] == "":
+            raise EmptyStringError
+                
+        alunos.append({
+            "name": data['name'], 
+            "id": len(alunos) + len(alunos_deletados) + 1, 
+            "age": data['age'], 
+            "class": data['class'], 
+            "bornDate": data['bornDate'], 
+            "firstGrade": data['firstGrade'], 
+            "secondGrade": data['secondGrade'],
+            "finalAverage": data['finalAverage'] 
+            })
+        
+        return jsonify({'success': True})
     
-    alunos.append({
-        "name": data['name'], 
-        "id": len(alunos) + 1, 
-        "age": data['age'], 
-        "class": data['class'], 
-        "bornDate": data['bornDate'], 
-        "firstGrade": data['firstGrade'], 
-        "secondGrade": data['secondGrade'],
-        "finalAverage": data['finalAverage'] 
-        })
-    
-    return jsonify({'success': True})
+    except EmptyStringError:
+        return jsonify({'Error': 'As chaves não podem estar vazias'})
+    except KeyError:
+        return jsonify({'Error': 'Você não passou alguma chave'})
 
 # ---- Rota Get Alunos ---- #
 @app.route("/alunos", methods = ['GET'])
