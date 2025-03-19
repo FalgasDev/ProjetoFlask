@@ -261,10 +261,10 @@ def addTurmas():
     data = request.json
     professorExiste = False
     try:
-        if 'name' and 'professor' and 'status' not in data:
+        if 'name' and 'professor' and 'active' not in data:
             raise KeyError
         
-        if data['name'] == "" or data['professor'] == "" or data['status'] == "":
+        if data['name'] == "" or data['professor'] == "" or data['active'] == "":
             raise EmptyStringError
         
         for professor in professores:
@@ -279,7 +279,7 @@ def addTurmas():
             "id": len(turmas) + len(turmas_deletadas) + 1, 
             "name": data['name'], 
             "professor": data['professor'], 
-            "status": data['status']
+            "active": data['active']
             })
         
         return jsonify({'success': True})
@@ -332,10 +332,10 @@ def attClass(id):
         if not idExiste:
             raise IdNotExist('O Id que você quer atualizar não existe')
         
-        if 'name' and 'professor' and 'status' not in data:
+        if 'name' and 'professor' and 'active' not in data:
             raise KeyError
         
-        if data['name'] == "" or data['professor'] == "" or data['status'] == "":
+        if data['name'] == "" or data['professor'] == "" or data['active'] == "":
             raise EmptyStringError
         
         for professor in professores:
@@ -350,7 +350,7 @@ def attClass(id):
                 if turma['id'] == int(id):
                     turma['name'] = data['name']
                     turma['professor'] = data['professor']
-                    turma['status'] = data['status']
+                    turma['active'] = data['active']
 
         return jsonify({'success': True})
     
