@@ -502,6 +502,244 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
 
+    # ---- Teste para ver se retorna o erro que o id da classe passada não existe ---- #
+    def test_010_atualiza_ou_adiciona_aluno_com_classe_inexistente(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+
+        # ---- Adicionando aluno ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "age": 20, 
+            "class": 1, 
+            "bornDate": "18/09/2004",
+            "firstGrade": 2, 
+            "secondGrade": 4,
+            "finalAverage": 3 
+            })
+        
+        r = requests.put('http://localhost:5000/alunos/1',json={
+            "name": "Fábio",
+            "age": 22,
+            "class": 60,
+            "bornDate": "28/06/2002", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+        
+        self.assertEqual(r.json()['Error'],'O Id de classe não existe')
+
+        r = requests.post('http://localhost:5000/alunos',json={
+            "name": "Diego",
+            "age": 22,
+            "class": 50, 
+            "bornDate": "28/06/2002", 
+            "firstGrade": 10, 
+            "secondGrade": 9,
+            "finalAverage": 9.5 
+            })
+        
+        self.assertEqual(r.json()['Error'],'O Id de classe não existe')
+
+    # ---- Testa se o POST da rota /professores está adicionando os professores ---- #
+    def test_011_adiciona_professores(self):
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+        
+        r_lista = requests.get('http://localhost:5000/professores')
+        lista_retornada = r_lista.json()
+
+        achei_caio = False
+        achei_odair = False
+        for professor in lista_retornada:
+            if professor['name'] == 'Caio':
+                achei_caio = True
+            if professor['name'] == 'Odair':
+                achei_odair = True
+        
+        if not achei_caio:
+            self.fail('Professor Caio não apareceu na lista de professores')
+        if not achei_odair:
+            self.fail('Professor Odair não apareceu na lista de professores')
+
+    # ---- Testa se o GET da rota /professores devolve o professor do id selecionado ---- #
+    def test_012_professor_por_id(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+
+        resposta = requests.get('http://localhost:5000/professores/2')
+        dict_retornado = resposta.json()
+        self.assertEqual(type(dict_retornado),dict)
+        self.assertIn('name',dict_retornado)
+        
+        self.assertEqual(dict_retornado['name'],'Odair')
+
+    # ---- Testa se o DELETE da rota /professores deleta o professor do id selecionado ---- #
+    def test_013_deleta_professores(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+        
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Vitor",
+            "age": 26,
+            "subject": "Banco de Dados",
+            "info": "Bombado"
+            })
+        
+        r_lista = requests.get('http://localhost:5000/professores')
+        lista_retornada = r_lista.json()
+        
+        self.assertEqual(len(lista_retornada),3)
+        
+        requests.delete('http://localhost:5000/professores/2')
+        
+        r_lista2 = requests.get('http://localhost:5000/professores')
+        lista_retornada2 = r_lista2.json()
+        
+        self.assertEqual(len(lista_retornada2),2) 
+
+        acheiCaio = False
+        acheiVitor = False
+        for professor in lista_retornada:
+            if professor['name'] == 'Caio':
+                acheiCaio=True
+            if professor['name'] == 'Vitor':
+                acheiVitor=True
+        if not acheiCaio or not acheiVitor:
+            self.fail("Você pode ter deletado o professor errado!")
+
+        requests.delete('http://localhost:5000/professores/1')
+
+        r_lista3 = requests.get('http://localhost:5000/professores')
+        lista_retornada3 = r_lista3.json()
+        
+        self.assertEqual(len(lista_retornada3),1) 
+
+        if lista_retornada3[0]['name'] == 'Vitor':
+            pass
+        else:
+            self.fail("Você pode ter deletado o professor errado!")
+
+    # ---- Testa se o PUT da rota /professores atualiza o professor do id selecionado ---- #
+    def test_014_edita_professores(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+        
+        r_antes = requests.get('http://localhost:5000/professores/2')
+        
+        self.assertEqual(r_antes.json()['name'],'Odair')
+
+        requests.put('http://localhost:5000/professores/2', json={
+            "name": "Vitor",
+            "age": 32,
+            "subject": "Banco de Dados",
+            "info": "Bombado"
+            })
+        
+        r_depois = requests.get('http://localhost:5000/professores/2')
+        
+        self.assertEqual(r_depois.json()['name'],'Vitor')
+        self.assertEqual(r_depois.json()['age'],32)
+
+    # ---- Testa se o GET retorna todos os professores ---- #
+    def test_015_retorna_todos_professores(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Odair",
+            "age": 26,
+            "subject": "DevOps",
+            "info": "Usa óculos"
+            })
+  
+        acheiCaio = False
+        acheiOdair = False
+
+        r_lista = requests.get('http://localhost:5000/professores')
+        lista_retornada = r_lista.json()
+
+        for professor in lista_retornada:
+            if professor['name'] == 'Caio':
+                acheiCaio=True
+            if professor['name'] == 'Odair':
+                acheiOdair=True
+        if not acheiCaio or not acheiOdair:
+            self.fail("Não retornou todos os professores")
+
+        self.assertEqual(len(lista_retornada),2)
+
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
