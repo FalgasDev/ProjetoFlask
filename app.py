@@ -42,18 +42,24 @@ def getProfessors():
     return jsonify(data)
 
 # ---- Rota Put Professores ---- #
-@app.route("/professores/<id>", methods = ['PUT'])
-def attProfessor(id):
-    data = request.json
-    
-    for professor in professores:
-        if professor['id'] == int(id):
-            professor['name'] = data['name']
-            professor['age'] = data['age']
-            professor['subject'] = data['subject']
-            professor['info'] = data['info']
-
-    return jsonify({'success': True})
+@app.route("/professores/<id>", methods = ['GET'])
+def getProfessorById(id):
+    data = {}
+    idExiste = False
+    try:
+        for professor in professores:
+            if professor['id'] == int(id):
+                data = professor
+                idExiste = True
+                break
+        
+        if idExiste == False:
+            raise IdNotExist
+        
+        return jsonify(data)
+        
+    except IdNotExist:
+        return jsonify({'Error': 'O Id que você está procurando não existe'})
 
 # ---- Rota Get Professor Por ID ---- #
 @app.route("/professores/<id>", methods = ['GET'])
