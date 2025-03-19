@@ -803,6 +803,37 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
 
+    # ---- Testa se o PUT e o POST retornam o erro que está faltando alguma chave no request ---- #
+    def test_018_atualiza_ou_adiciona_professor_sem_alguma_chave(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        
+        # ---- PUT sem a chave info ---- #
+        r = requests.put('http://localhost:5000/professores/1',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços"
+            })
+        
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+        
+        # ---- POST sem a chave age ---- #
+        r = requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+    
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
