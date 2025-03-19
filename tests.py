@@ -833,6 +833,48 @@ class TestStringMethods(unittest.TestCase):
             })
         
         self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+  
+    # ---- Testa se o POST da rota /turmas está adicionando as turmas ---- #
+    def test_019_adiciona_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turmas ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+        
+        
+        r_lista = requests.get('http://localhost:5000/turmas')
+        lista_retornada = r_lista.json()
+
+        achei_api = False
+        achei_devops = False
+        for turma in lista_retornada:
+            if turma['name'] == 'API e Microserviços':
+                achei_api = True
+            if turma['name'] == 'DevOps':
+                achei_devops = True
+        
+        if not achei_api:
+            self.fail('Turma API e Microserviços não apareceu na lista de turmas')
+        if not achei_devops:
+            self.fail('Turma DevOps não apareceu na lista de turmas')
     
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
