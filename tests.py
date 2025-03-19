@@ -1051,6 +1051,45 @@ class TestStringMethods(unittest.TestCase):
             self.fail("Não retornou todas as turmas")
 
         self.assertEqual(len(lista_retornada),2)
+
+    # ---- Testa se as rotas em que precisa passar um id retorna o erro falando que não existe o id selecionado ---- #
+    def test_024_id_inexistente_turmas(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "API e Microserviços",
+            "professor": 1,
+            "active": True
+            })
+        
+        # ---- Rota PUT ---- #
+        r = requests.put('http://localhost:5000/turmas/30',json={
+            "name": "DevOps",
+            "professor": 1,
+            "active": True
+            })
+
+        self.assertEqual(r.json()['Error'],'O Id que você quer atualizar não existe')
+
+        # ---- Rota GET ---- #
+        r = requests.get('http://localhost:5000/turmas/50')
+        
+        self.assertEqual(r.json()['Error'],'O Id que você está procurando não existe')
+
+        # ---- Rota DELETE ---- #
+        r = requests.delete('http://localhost:5000/turmas/50')
+        
+        self.assertEqual(r.json()['Error'],'O Id que você quer deletar não existe')
     
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
