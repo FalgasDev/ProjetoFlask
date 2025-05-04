@@ -1,5 +1,9 @@
 import requests
 import unittest
+from professor.professor_model import Professor
+from aluno.aluno_model import Student
+from turma.turma_model import Classroom
+from config import db, app
 
 class TestStringMethods(unittest.TestCase):
     # ---- Testa se o GET da rotas /alunos, /professores e /turmas devolvem uma lista ---- #
@@ -47,28 +51,24 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Adicionando alunos ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Fábio",
-            "age": 20, 
-            "class": 1, 
-            "bornDate": "18/09/2004", 
-            "firstGrade": 2, 
-            "secondGrade": 4,
-            "finalAverage": 3 
+            "class_id": 1, 
+            "born_date": "2004-09-18", 
+            "first_grade": 2, 
+            "second_grade": 4
             })
         requests.post('http://localhost:5000/alunos',json={
             "name": "Luiz",
-            "age": 18, 
-            "class": 1, 
-            "bornDate": "25/06/2006", 
-            "firstGrade": 5, 
-            "secondGrade": 7,
-            "finalAverage": 6 
+            "class_id": 1, 
+            "born_date": "2006-06-25", 
+            "first_grade": 5, 
+            "second_grade": 7
             })
         
         r_lista = requests.get('http://localhost:5000/alunos')
@@ -103,28 +103,24 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Adicionando alunos ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Kaio",
-            "age": 18, 
-            "class": 1, 
-            "bornDate": "10/04/2006", 
-            "firstGrade": 5, 
-            "secondGrade": 9,
-            "finalAverage": 7 
+            "class_id": 1, 
+            "born_date": "2006-04-10", 
+            "first_grade": 5, 
+            "second_grade": 9
             })
         requests.post('http://localhost:5000/alunos',json={
             "name": "Diego",
-            "age": 22, 
-            "class": 1, 
-            "bornDate": "28/06/2002", 
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "class_id": 1, 
+            "born_date": "2002-06-28", 
+            "first_grade": 10, 
+            "second_grade": 9
             })
 
         resposta = requests.get('http://localhost:5000/alunos/2')
@@ -134,7 +130,7 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(dict_retornado['name'],'Diego')
         
-    # ---- Testa se a rota /reseta apaga todos os dados das listas de professores, alunos e turmas ---- #
+    # ---- Testa se a rota /reseta apaga todos os dados das tabelas de professores, alunos e turmas ---- #
     def test_003_reseta(self):
         r_reset = requests.post('http://localhost:5000/reseta')
         self.assertEqual(r_reset.status_code,200)
@@ -147,17 +143,15 @@ class TestStringMethods(unittest.TestCase):
             })
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         requests.post('http://localhost:5000/alunos',json={
             "name": "Kaio",
-            "age": 18, 
-            "class": 1, 
-            "bornDate": "10/04/2006", 
-            "firstGrade": 5, 
-            "secondGrade": 9,
-            "finalAverage": 7 
+            "class_id": 1, 
+            "born_date": "2006-04-10", 
+            "first_grade": 5, 
+            "second_grade": 9
             })
         
         r_lista = requests.get('http://localhost:5000/professores')
@@ -195,37 +189,31 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Adicionando alunos ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Fábio",
-            "age": 20, 
-            "class": 1, 
-            "bornDate": "18/09/2004", 
-            "firstGrade": 2, 
-            "secondGrade": 4,
-            "finalAverage": 3 
+            "class_id": 1, 
+            "born_date": "2004-09-18", 
+            "first_grade": 2, 
+            "second_grade": 4
             })
         requests.post('http://localhost:5000/alunos',json={
             "name": "Luiz",
-            "age": 18, 
-            "class": 1, 
-            "bornDate": "25/06/2006", 
-            "firstGrade": 5, 
-            "secondGrade": 7,
-            "finalAverage": 6 
+            "class_id": 1, 
+            "born_date": "2006-06-25", 
+            "first_grade": 5, 
+            "second_grade": 7
             })
         requests.post('http://localhost:5000/alunos',json={
             "name": "Kaio",
-            "age": 18, 
-            "class": 1, 
-            "bornDate": "10/04/2006", 
-            "firstGrade": 5, 
-            "secondGrade": 9,
-            "finalAverage": 7 
+            "class_id": 1, 
+            "born_date": "2006-04-10", 
+            "first_grade": 5, 
+            "second_grade": 9
             })
         
         r_lista = requests.get('http://localhost:5000/alunos')
@@ -278,28 +266,24 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Adicionando alunos ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Diego",
-            "age": 22, 
-            "class": 1, 
-            "bornDate": "28/06/2002", 
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "class_id": 1, 
+            "born_date": "2002-06-28", 
+            "first_grade": 10, 
+            "second_grade": 9
             })
         requests.post('http://localhost:5000/alunos',json={
             "name": "Bruna",
-            "age": 19, 
-            "class": 1, 
-            "bornDate": "30/01/2006", 
-            "firstGrade": 2,
-            "secondGrade": 9,
-            "finalAverage": 4.5 
+            "class_id": 1, 
+            "born_date": "2006-01-30", 
+            "first_grade": 2,
+            "second_grade": 9
             })
         
         r_antes = requests.get('http://localhost:5000/alunos/2')
@@ -308,12 +292,10 @@ class TestStringMethods(unittest.TestCase):
 
         requests.put('http://localhost:5000/alunos/2', json={
             "name": "Brunasser",
-            "age": 19, 
-            "class": 1, 
-            "bornDate": "30/01/2006", 
-            "firstGrade": 2,
-            "secondGrade": 9,
-            "finalAverage": 4.5 
+            "class_id": 1, 
+            "born_date": "2006-01-30", 
+            "first_grade": 2,
+            "second_grade": 9
             })
         
         r_depois = requests.get('http://localhost:5000/alunos/2')
@@ -337,28 +319,24 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Adicionando alunos ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Fábio",
-            "age": 20, 
-            "class": 1, 
-            "bornDate": "18/09/2004", 
-            "firstGrade": 2, 
-            "secondGrade": 4,
-            "finalAverage": 3 
+            "class_id": 1, 
+            "born_date": "2004-09-18", 
+            "first_grade": 2, 
+            "second_grade": 4
             })
         requests.post('http://localhost:5000/alunos',json={
             "name": "Kaio",
-            "age": 18, 
-            "class": 1, 
-            "bornDate": "10/04/2006", 
-            "firstGrade": 5, 
-            "secondGrade": 9,
-            "finalAverage": 7 
+            "class_id": 1, 
+            "born_date": "2006-04-10", 
+            "first_grade": 5, 
+            "second_grade": 9
             })
         
         acheiFabio = False
@@ -393,43 +371,39 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Adicionando aluno ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Fábio",
-            "age": 22,
-            "class": 1,
-            "bornDate": "18/09/2004",
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "class_id": 1,
+            "born_date": "2004-09-18",
+            "first_grade": 10, 
+            "second_grade": 9
             })
 
         # ---- Rota PUT ---- #
         r = requests.put('http://localhost:5000/alunos/30',json={
             "name": "Fábio",
-            "age": 20, 
-            "class": 1, 
-            "bornDate": "18/09/2004", 
-            "firstGrade": 2, 
-            "secondGrade": 4,
-            "finalAverage": 3 
+            "class_id": 1, 
+            "born_date": "2004-09-18", 
+            "first_grade": 2, 
+            "second_grade": 4
             })
 
-        self.assertEqual(r.json()['Error'],'O Id que você quer atualizar não existe')
+        self.assertEqual(r.json()['Error'],'O aluno que você quer atualizar não foi encontrado.')
 
         # ---- Rota GET ---- #
         r = requests.get('http://localhost:5000/alunos/50')
         
-        self.assertEqual(r.json()['Error'],'O Id que você está procurando não existe')
+        self.assertEqual(r.json()['Error'],'O aluno não foi encontrado.')
 
         # ---- Rota DELETE ---- #
         r = requests.delete('http://localhost:5000/alunos/50')
         
-        self.assertEqual(r.json()['Error'],'O Id que você quer deletar não existe')
+        self.assertEqual(r.json()['Error'],'O aluno que você quer deletar não foi encontrado.')
 
     # ---- Testa se o PUT e o POST retornam o erro que as chaves não podem tem valores vazios ---- #
     def test_008_atualiza_ou_adiciona_aluno_com_valores_vazios(self):
@@ -447,46 +421,40 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Adicionando aluno ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Diego",
-            "age": 22, 
-            "class": 1, 
-            "bornDate": "28/06/2002", 
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "class_id": 1, 
+            "born_date": "2002-06-28", 
+            "first_grade": 10, 
+            "second_grade": 9
             })
 
         # ---- Chave name com valor vazio ---- #
         r = requests.put('http://localhost:5000/alunos/1',json={
             "name": "",
-            "age": 22, 
-            "class": 1, 
-            "bornDate": "28/06/2002", 
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "class_id": 1, 
+            "born_date": "2002-06-28", 
+            "first_grade": 10, 
+            "second_grade": 9
             })
         
-        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias.')
 
-        # ---- Chave bornDate com valor vazio ---- #
+        # ---- Chave born_date com valor vazio ---- #
         r = requests.post('http://localhost:5000/alunos',json={
             "name": "Fábio",
-            "age": 22, 
-            "class": 1, 
-            "bornDate": "", 
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "class_id": 1, 
+            "born_date": "", 
+            "first_grade": 10, 
+            "second_grade": 9
             })
         
-        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias.')
 
     # ---- Testa se o PUT e o POST retornam o erro que está faltando alguma chave no request ---- #
     def test_009_atualiza_ou_adiciona_aluno_sem_alguma_chave(self):
@@ -504,44 +472,38 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Adicionando aluno ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Diego",
-            "age": 22,
-            "class": 1, 
-            "bornDate": "28/06/2002", 
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "class_id": 1, 
+            "born_date": "2002-06-28", 
+            "first_grade": 10, 
+            "second_grade": 9
             })
         
-        # ---- PUT sem a chave class ---- #
+        # ---- PUT sem a chave class_id ---- #
         r = requests.put('http://localhost:5000/alunos/1',json={
             "name": "Fábio",
-            "age": 22,
-            "bornDate": "28/06/2002", 
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "born_date": "2002-06-28", 
+            "first_grade": 10, 
+            "second_grade": 9
             })
         
-        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave.')
         
-        # ---- POST sem a chave firstGrade ---- #
+        # ---- POST sem a chave first_grade ---- #
         r = requests.post('http://localhost:5000/alunos',json={
             "name": "Luiz",
-            "age": 18, 
-            "class": 1, 
-            "bornDate": "25/06/2006", 
-            "secondGrade": 7,
-            "finalAverage": 6 
+            "class_id": 1, 
+            "born_date": "2006-06-25", 
+            "second_grade": 7
             })
         
-        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave.')
 
     # ---- Teste para ver se retorna o erro que o id da classe passada não existe ---- #
     def test_010_atualiza_ou_adiciona_aluno_com_classe_inexistente(self):
@@ -559,44 +521,38 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Adicionando aluno ---- #
         requests.post('http://localhost:5000/alunos',json={
             "name": "Fábio",
-            "age": 20, 
-            "class": 1, 
-            "bornDate": "18/09/2004",
-            "firstGrade": 2, 
-            "secondGrade": 4,
-            "finalAverage": 3 
+            "class_id": 1, 
+            "born_date": "2004-09-18",
+            "first_grade": 2, 
+            "second_grade": 4
             })
         
         r = requests.put('http://localhost:5000/alunos/1',json={
             "name": "Fábio",
-            "age": 22,
-            "class": 60,
-            "bornDate": "28/06/2002", 
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "class_id": 60,
+            "born_date": "2002-06-28", 
+            "first_grade": 10, 
+            "second_grade": 9
             })
         
-        self.assertEqual(r.json()['Error'],'O Id de classe não existe')
+        self.assertEqual(r.json()['Error'],'O Id da classe não existe.')
 
         r = requests.post('http://localhost:5000/alunos',json={
             "name": "Diego",
-            "age": 22,
-            "class": 50, 
-            "bornDate": "28/06/2002", 
-            "firstGrade": 10, 
-            "secondGrade": 9,
-            "finalAverage": 9.5 
+            "class_id": 50, 
+            "born_date": "2002-06-28", 
+            "first_grade": 10, 
+            "second_grade": 9
             })
         
-        self.assertEqual(r.json()['Error'],'O Id de classe não existe')
+        self.assertEqual(r.json()['Error'],'O Id da classe não existe.')
 
     # ---- Testa se o POST da rota /professores está adicionando os professores ---- #
     def test_011_adiciona_professores(self):
@@ -800,17 +756,17 @@ class TestStringMethods(unittest.TestCase):
             "info": "Usa óculos"
             })
 
-        self.assertEqual(r.json()['Error'],'O Id que você quer atualizar não existe')
+        self.assertEqual(r.json()['Error'],'O professor que você quer atualizar não foi encontrado.')
 
         # ---- Rota GET ---- #
         r = requests.get('http://localhost:5000/professores/50')
         
-        self.assertEqual(r.json()['Error'],'O Id que você está procurando não existe')
+        self.assertEqual(r.json()['Error'],'O professor não foi encontrado.')
 
         # ---- Rota DELETE ---- #
         r = requests.delete('http://localhost:5000/professores/50')
         
-        self.assertEqual(r.json()['Error'],'O Id que você quer deletar não existe')
+        self.assertEqual(r.json()['Error'],'O professor que você quer deletar não foi encontrado.')
 
     # ---- Testa se o PUT e o POST retornam o erro que as chaves não podem tem valores vazios ---- #
     def test_017_atualiza_ou_adiciona_professor_com_valores_vazios(self):
@@ -832,7 +788,7 @@ class TestStringMethods(unittest.TestCase):
             "info": "Tem tatuagem"
             })
         
-        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias.')
 
         # ---- Chave subject com valor vazio ---- #
         r = requests.post('http://localhost:5000/professores',json={
@@ -842,7 +798,7 @@ class TestStringMethods(unittest.TestCase):
             "info": "Usa óculos"
             })
         
-        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias.')
 
     # ---- Testa se o PUT e o POST retornam o erro que está faltando alguma chave no request ---- #
     def test_018_atualiza_ou_adiciona_professor_sem_alguma_chave(self):
@@ -864,7 +820,7 @@ class TestStringMethods(unittest.TestCase):
             "subject": "API e Microserviços"
             })
         
-        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave.')
         
         # ---- POST sem a chave age ---- #
         r = requests.post('http://localhost:5000/professores',json={
@@ -873,7 +829,7 @@ class TestStringMethods(unittest.TestCase):
             "info": "Tem tatuagem"
             })
         
-        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave.')
 
     # ---- Testa se o POST da rota /turmas está adicionando as turmas ---- #
     def test_019_adiciona_turmas(self):
@@ -891,12 +847,12 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turmas ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         requests.post('http://localhost:5000/turmas',json={
             "name": "DevOps",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         
@@ -933,12 +889,12 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turmas ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         requests.post('http://localhost:5000/turmas',json={
             "name": "DevOps",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
@@ -965,17 +921,17 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turmas ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         requests.post('http://localhost:5000/turmas',json={
             "name": "DevOps",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         requests.post('http://localhost:5000/turmas',json={
             "name": "Banco de Dados",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         
@@ -1029,12 +985,12 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turmas ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         requests.post('http://localhost:5000/turmas',json={
             "name": "DevOps",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         
@@ -1044,7 +1000,7 @@ class TestStringMethods(unittest.TestCase):
 
         requests.put('http://localhost:5000/turmas/2', json={
             "name": "Banco de Dados",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         
@@ -1068,12 +1024,12 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turmas ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         requests.post('http://localhost:5000/turmas',json={
             "name": "DevOps",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
   
@@ -1109,28 +1065,28 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         
         # ---- Rota PUT ---- #
         r = requests.put('http://localhost:5000/turmas/30',json={
             "name": "DevOps",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
-        self.assertEqual(r.json()['Error'],'O Id que você quer atualizar não existe')
+        self.assertEqual(r.json()['Error'],'A turma que você quer atualizar não foi encontrada.')
 
         # ---- Rota GET ---- #
         r = requests.get('http://localhost:5000/turmas/50')
         
-        self.assertEqual(r.json()['Error'],'O Id que você está procurando não existe')
+        self.assertEqual(r.json()['Error'],'A turma não foi encontrada.')
 
         # ---- Rota DELETE ---- #
         r = requests.delete('http://localhost:5000/turmas/50')
         
-        self.assertEqual(r.json()['Error'],'O Id que você quer deletar não existe')
+        self.assertEqual(r.json()['Error'],'A turma que você quer deletar não foi encontrada.')
 
     # ---- Testa se o PUT e o POST retornam o erro que as chaves não podem tem valores vazios ---- #
     def test_025_atualiza_ou_adiciona_turma_com_valores_vazios(self):
@@ -1148,27 +1104,27 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         # ---- Chave name com valor vazio ---- #
         r = requests.put('http://localhost:5000/turmas/1',json={
             "name": "",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         
-        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias.')
 
         # ---- Chave name com valor vazio ---- #
         r = requests.post('http://localhost:5000/turmas',json={
             "name": "",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         
-        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias')
+        self.assertEqual(r.json()['Error'],'As chaves não podem estar vazias.')
 
     # ---- Testa se o PUT e o POST retornam o erro que está faltando alguma chave no request ---- #
     def test_026_atualiza_ou_adiciona_turma_sem_alguma_chave(self):
@@ -1186,25 +1142,25 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
         
-        # ---- PUT sem a chave professor ---- #
+        # ---- PUT sem a chave professor_id ---- #
         r = requests.put('http://localhost:5000/turmas/1',json={
             "name": "API e Microserviços",
             "active": True
             })
         
-        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave.')
         
         # ---- POST sem a chave active ---- #
         r = requests.post('http://localhost:5000/turmas',json={
             "name": "API e Microserviços",
-            "professor": 1
+            "professor_id": 1
             })
         
-        self.assertEqual(r.json()['Error'],'Você não passou alguma chave')
+        self.assertEqual(r.json()['Error'],'Você não passou alguma chave.')
 
     # ---- Teste para ver se retorna o erro que o id do professor passado não existe ---- #
     def test_027_atualiza_ou_adiciona_turma_com_professor_inexistente(self):
@@ -1222,25 +1178,25 @@ class TestStringMethods(unittest.TestCase):
         # ---- Adicionando turma ---- #
         requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 1,
+            "professor_id": 1,
             "active": True
             })
 
         r = requests.put('http://localhost:5000/turmas/1',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 20,
+            "professor_id": 20,
             "active": True
             })
         
-        self.assertEqual(r.json()['Error'],'O Id de professor não existe')
+        self.assertEqual(r.json()['Error'],'O Id do professor não existe.')
 
         r = requests.post('http://localhost:5000/turmas',json={
             "name": "Desenvolvimento de API e Microserviços",
-            "professor": 50,
+            "professor_id": 50,
             "active": True
             })
         
-        self.assertEqual(r.json()['Error'],'O Id de professor não existe')
+        self.assertEqual(r.json()['Error'],'O Id do professor não existe.')
 
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
