@@ -1,51 +1,48 @@
 from flask import Blueprint, jsonify, request
-from .aluno_model import addStudent, getStudents, getStudentById, attStudent, deleteStudent
+from .professor_model import addProfessor, getProfessors, getProfessorById, updateProfessor, deleteProfessor
 from errors import EmptyStringError, IdNotExist
 
-aluno_blueprint = Blueprint('aluno', __name__)
+professor_blueprint = Blueprint('professor', __name__)
 
-@aluno_blueprint.route('/alunos', methods=['POST'])
-def create_aluno():
+@professor_blueprint.route('/professores', methods=['POST'])
+def create_professor():
     data = request.json
     try:
-        addStudent(data)
+        addProfessor(data)
         return jsonify(data), 201
     except EmptyStringError:
-        return jsonify({'Error': 'As chaves não podem estar vazias'}), 400
+        return jsonify({'Error': 'As chaves não podem estar vazias.'}), 400
     except KeyError:
-        return jsonify({'Error': 'Você não passou alguma chave'}), 400
-    except IdNotExist as e:
-        return jsonify({'Error': e.message}), 404
-    
-@aluno_blueprint.route("/alunos", methods = ['GET'])
-def get_alunos():
-    return jsonify(getStudents())
+        return jsonify({'Error': 'Você não passou alguma chave.'}), 400
 
-@aluno_blueprint.route("/alunos/<id>", methods = ['GET'])
-def get_aluno(id):
+@professor_blueprint.route("/professores", methods=['GET'])
+def get_professors():
+    return jsonify(getProfessors())
+
+@professor_blueprint.route("/professores/<int:id>", methods=['GET'])
+def get_professor(id):
     try:
-        return jsonify(getStudentById(id))
+        return jsonify(getProfessorById(id))
     except IdNotExist as e:
-        return jsonify({'Error': e.message}), 404
+        return jsonify({'Error': str(e)}), 404
 
-@aluno_blueprint.route("/alunos/<id>", methods = ['PUT'])
-def update_aluno(id):
+@professor_blueprint.route("/professores/<int:id>", methods=['PUT'])
+def update_professor(id):
     data = request.json
     try:
-        attStudent(id, data)
-        return jsonify(getStudentById(id))
+        updateProfessor(id, data)
+        return jsonify(getProfessorById(id))
     except IdNotExist as e:
-        return jsonify({'Error': e.message}), 404
+        return jsonify({'Error': str(e)}), 404
     except EmptyStringError:
-        return jsonify({'Error': 'As chaves não podem estar vazias'}), 400
+        return jsonify({'Error': 'As chaves não podem estar vazias.'}), 400
     except KeyError:
-        return jsonify({'Error': 'Você não passou alguma chave'}), 400
-    
+        return jsonify({'Error': 'Você não passou alguma chave.'}), 400
 
-@aluno_blueprint.route("/alunos/<id>", methods = ['DELETE'])
-def delete_aluno(id):
+@professor_blueprint.route("/professores/<int:id>", methods=['DELETE'])
+def delete_professor(id):
     try:
-        deleteStudent(id)
+        deleteProfessor(id)
         return jsonify({'Success': True})
     except IdNotExist as e:
-        return jsonify({'Error': e.message}), 404
+        return jsonify({'Error': str(e)}), 404

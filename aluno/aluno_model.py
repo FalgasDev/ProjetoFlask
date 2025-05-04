@@ -1,103 +1,83 @@
 from errors import EmptyStringError, IdNotExist
-from turma.turma_model import turmas
+from config import db
 
-alunos = []
-alunos_deletados = []
+class Professor(db.Model):
+    __tablename__ = "professors"
 
-def addStudent(data):
-    classeExiste = False
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+    subject = db.Column(db.String(100), nullable=False)
+    info = db.Column(db.String(255), nullable=True)
 
-    if 'name' and 'age' and 'class' and 'bornDate' and 'firstGrade' and 'secondGrade' and 'finalAverage' not in data:
-        raise KeyError
-        
-    if data['name'] == "" or data['age'] == "" or data['class'] == "" or data['bornDate'] == "" or data['firstGrade'] == "" or data['secondGrade'] == "" or data['finalAverage'] == "":
-        raise EmptyStringError
-    
-    for turma in turmas:
-        if turma['id'] == data['class']:
-            classeExiste = True
-            break
+    def __init__(self, name, age, subject, info):
+        self.name = name
+        self.age = age
+        self.subject = subject
+        self.info = info
 
-    if not classeExiste:
-        raise IdNotExist('O Id de classe não existe')
-            
-    alunos.append({
-        "name": data['name'], 
-        "id": len(alunos) + len(alunos_deletados) + 1, 
-        "age": data['age'], 
-        "class": data['class'], 
-        "bornDate": data['bornDate'], 
-        "firstGrade": data['firstGrade'], 
-        "secondGrade": data['secondGrade'],
-        "finalAverage": data['finalAverage'] 
-        })
-    
-def getStudents():
-    return alunos
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "age": self.age,
+            "subject": self.subject,
+            "info": self.info
+        }
 
-def getStudentById(id):
-    data = {}
-    idExiste = False
-
-    for aluno in alunos:
-        if aluno['id'] == int(id):
-            data = aluno
-            idExiste = True
-            break
-    
-    if not idExiste:
-        raise IdNotExist('O Id que você está procurando não existe')
-    
-    return data
-
-def attStudent(id, data):
-    idExiste = False
-    classeExiste = False
-
-    for aluno in alunos:
-        if aluno['id'] == int(id):
-            idExiste = True
-            break
-    
-    if not idExiste:
-        raise IdNotExist('O Id que você quer atualizar não existe')
-    
-    if 'name' and 'age' and 'class' and 'bornDate' and 'firstGrade' and 'secondGrade' and 'finalAverage' not in data:
+def addProfessor(data):
+    if 'name' and 'age' and 'subject' and 'info' not in data:
         raise KeyError
     
-    if data['name'] == "" or data['age'] == "" or data['class'] == "" or data['bornDate'] == "" or data['firstGrade'] == "" or data['secondGrade'] == "" or data['finalAverage'] == "":
+    if data['name'] == "" or data['age'] == "" or data['subject'] == "" or data['info'] == "":
         raise EmptyStringError
+
+    professor = Professor(
+        name=data['name'],
+        age=data['age'],
+        subject=data['subject'],
+        info=data['info']
+    )
+
+    db.session.add(professor)
+    db.session.commit()
+
+def getProfessors():
+    professors = Professor.query.all()
+    return [professor.to_dict() for professor in professors]
+
+def getProfessorById(id):
+    professor = Professor.query.get(id)
+
+    if not professor:
+        raise IdNotExist("O professor não foi encontrado.")
     
-    for turma in turmas:
-        if turma['id'] == data['class']:
-            classeExiste = True
-            break
+    return professor.to_dict()
 
-    if not classeExiste:
-        raise IdNotExist('O Id de classe não existe')
+def updateProfessor(id, data):
+    professor = Professor.query.get(id)
 
-    for aluno in alunos:
-        if aluno['id'] == int(id):
-            aluno['name'] = data['name']
-            aluno['age'] = data['age']
-            aluno['class'] = data['class']
-            aluno['bornDate'] = data['bornDate']
-            aluno['firstGrade'] = data['firstGrade']
-            aluno['secondGrade'] = data['secondGrade']
-            aluno['finalAverage'] = data['finalAverage']
+    if not professor:
+        raise IdNotExist("O professor que você quer atualizar não foi encontrado.")
 
-def deleteStudent(id):
-    idExiste = False
+    if 'name' and 'age' and 'subject' and 'info' not in data:
+        raise KeyError
+    
+    if data['name'] == "" or data['age'] == "" or data['subject'] == "" or data['info'] == "":
+        raise EmptyStringError
 
-    for aluno in alunos:
-        if aluno['id'] == int(id):
-            idExiste = True
-            break
+    professor.name = data['name']
+    professor.age = data['age']
+    professor.subject = data['subject']
+    professor.info = data['info']
 
-    if not idExiste:
-        raise IdNotExist('O Id que você quer deletar não existe')
+    db.session.commit()
 
-    for aluno in alunos:
-        if aluno['id'] == int(id):
-            alunos.remove(aluno)
-            alunos_deletados.append(aluno)
+def deleteProfessor(id):
+    professor = Professor.query.get(id)
+
+    if not professor:
+        raise IdNotExist("O professor que você quer deletar não foi encontrado.")
+    
+    db.session.delete(professor)
+    db.session.commit()
