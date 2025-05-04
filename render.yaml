@@ -1,13 +1,10 @@
 services:
   - type: web
-    name: grupo15-api
-    runtime: python
-    pythonVersion: "3.9"
-    buildCommand: pip install -r requirements.txt
-    startCommand: app:app -b localhost:5000
-    envVars:
-      - key: FLASK_APP
-        value: app.py
-      - key: PYTHONPATH
-        value: app.py
+    name: minha-app-flask
+    env: docker
     plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: FLASK_ENV
+        value: production
