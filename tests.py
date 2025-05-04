@@ -1198,6 +1198,163 @@ class TestStringMethods(unittest.TestCase):
         
         self.assertEqual(r.json()['Error'],'O Id do professor não existe.')
 
+    # ---- Teste para ver se o método calculate_age da classe Student está calculando a idade de forma correta ---- #
+    def test_028_calculo_idade_do_aluno(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor_id": 1,
+            "active": True
+            })
+        
+        # ---- Adicionando aluno ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "class_id": 1, 
+            "born_date": "2004-09-18", 
+            "first_grade": 2, 
+            "second_grade": 4
+            })
+        
+        r = requests.get('http://localhost:5000/alunos/1')
+        
+        self.assertEqual(r.json()['age'],20)
+
+    # ---- Teste para ver se o erro de data de nascimento em formato errado é disparado ---- #
+    def test_029_data_de_nascimento_em_formato_errado(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor_id": 1,
+            "active": True
+            })
+        
+        # ---- Adicionando aluno ---- #
+        r = requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "class_id": 1, 
+            "born_date": "18/09/2004", 
+            "first_grade": 2, 
+            "second_grade": 4
+            })
+        
+        self.assertEqual(r.json()['Error'],'A data está escrita de forma errada, o certo é yyyy-mm-dd.')
+
+    # ---- Teste para ver se a média final está sendo calculada corretamante ---- #
+    def test_030_calculo_de_media_final(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        # ---- Adicionando professor ---- #
+        requests.post('http://localhost:5000/professores',json={
+            "name": "Caio",
+            "age": 26,
+            "subject": "API e Microserviços",
+            "info": "Tem tatuagem"
+            })
+        
+        # ---- Adicionando turma ---- #
+        requests.post('http://localhost:5000/turmas',json={
+            "name": "Desenvolvimento de API e Microserviços",
+            "professor_id": 1,
+            "active": True
+            })
+        
+        # ---- Adicionando aluno ---- #
+        requests.post('http://localhost:5000/alunos',json={
+            "name": "Fábio",
+            "class_id": 1, 
+            "born_date": "2004-09-18", 
+            "first_grade": 7.5, 
+            "second_grade": 4.5
+            })
+        
+        r = requests.get('http://localhost:5000/alunos/1')
+        
+        self.assertEqual(r.json()['final_average'],6)
+
+    # ---- Testes de integração ---- #
+
+    # ---- SetUp ---- #
+    def setUp(self):
+        self.ctx = app.app_context()
+        self.ctx.push()
+        db.create_all()
+
+    # ---- Teste para ver se o professor está sendo criado corretamente no banco de dados ---- #
+    def test_031_criacao_professor_no_bd(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        professor = Professor('Caio', 26, 'API e Microserviços', 'Tem tatuagem')
+        db.session.add(professor)
+        db.session.commit()
+
+        r = Professor.query.first()
+        self.assertEqual(r.name,'Caio')
+        self.assertEqual(r.subject,'API e Microserviços')
+
+    # ---- Teste para ver se a turma está sendo criada corretamente no banco de dados ---- #
+    def test_032_criacao_turma_no_bd(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        professor = Professor('Caio', 26, 'API e Microserviços', 'Tem tatuagem')
+        db.session.add(professor)
+        db.session.commit()
+
+        classroom = Classroom('Desenvolvimento de API e Microserviços', 1, True)
+        db.session.add(classroom)
+        db.session.commit()
+
+        r = Classroom.query.first()
+        self.assertEqual(r.name,'Desenvolvimento de API e Microserviços')
+        self.assertEqual(r.active,True)
+
+    # ---- Teste para ver se o aluno está sendo criado corretamente no banco de dados ---- #
+    def test_033_criacao_aluno_no_bd(self):
+        r_reset = requests.post('http://localhost:5000/reseta')
+        self.assertEqual(r_reset.status_code,200)
+
+        professor = Professor('Caio', 26, 'API e Microserviços', 'Tem tatuagem')
+        db.session.add(professor)
+        db.session.commit()
+
+        classroom = Classroom('Desenvolvimento de API e Microserviços', 1, True)
+        db.session.add(classroom)
+        db.session.commit()
+
+        student = Student('Diego', 1, '2002-06-28', 8, 6)
+        db.session.add(student)
+        db.session.commit()
+
+        r = Student.query.first()
+        self.assertEqual(r.name,'Diego')
+        self.assertEqual(r.age,22)
+        self.assertEqual(r.final_average,7)
+
 def runTests():
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStringMethods)
         unittest.TextTestRunner(verbosity=2,failfast=True).run(suite)
