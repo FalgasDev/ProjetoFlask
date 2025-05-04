@@ -1,95 +1,88 @@
 from errors import EmptyStringError, IdNotExist
-from professor.professor_model import professores
+from config import db
+from professor.professor_model import Professor
 
-turmas = []
-turmas_deletadas = []
+class Classroom(db.Model):
+    __tablename__ = "classroom"
 
-def addClass(data):
-    professorExiste = False
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False)
+    professor_id = db.Column(db.Integer, db.ForeignKey("professors.id"))
+    active = db.Column(db.Boolean, default=True)
 
-    if 'name' and 'professor' and 'active' not in data:
+    def __init__(self, name, professor_id, active=True):
+        self.name = name
+        self.professor_id = professor_id
+        self.active = active
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "professor_id": self.professor_id,
+            "active": self.active
+        }
+
+def addClassroom(data):
+    professor = Professor.query.get(data['professor_id'])
+
+    if 'name' and 'professor_id' and 'active' not in data:
         raise KeyError
     
-    if data['name'] == "" or data['professor'] == "" or data['active'] == "":
+    if data['name'] == "" or data['professor_id'] == "" or data['active'] == "":
         raise EmptyStringError
     
-    for professor in professores:
-        if professor['id'] == data['professor']:
-            professorExiste = True
-            break
+    if not professor:
+        raise IdNotExist("O Id do professor não existe.")
 
-    if not professorExiste:
-        raise IdNotExist('O Id de professor não existe')
+    classroom = Classroom(
+        name=data['name'],
+        professor_id=data['professor_id'],
+        active=data['active']
+    )
 
-    turmas.append({
-        "id": len(turmas) + len(turmas_deletadas) + 1, 
-        "name": data['name'], 
-        "professor": data['professor'], 
-        "active": data['active']
-        })
+    db.session.add(classroom)
+    db.session.commit()
+
+def getClassrooms():
+    classrooms = Classroom.query.all()
+    return [classroom.to_dict() for classroom in classrooms]
+
+def getClassroomById(id):
+    classroom = Classroom.query.get(id)
+
+    if not classroom:
+        raise IdNotExist("A turma não foi encontrada.")
     
-def getClasses():
-    return turmas
+    return classroom.to_dict()
 
-def getClassById(id):
-    data = {}
-    idExiste = False
+def updateClassroom(id, data):
+    classroom = Classroom.query.get(id)
+    professor = Professor.query.get(data['professor_id'])
 
-    for turma in turmas:
-        if turma['id'] == int(id):
-            data = turma
-            idExiste = True
-            break
-    
-    if not idExiste:
-        raise IdNotExist('O Id que você está procurando não existe')
-    
-    return data
+    if not classroom:
+        raise IdNotExist("A turma que você quer atualizar não foi encontrada.")
 
-def attClass(id, data):
-    idExiste = False
-    professorExiste = False
-
-    for turma in turmas:
-        if turma['id'] == int(id):
-            idExiste = True
-            break
-
-    if not idExiste:
-        raise IdNotExist('O Id que você quer atualizar não existe')
-    
-    if 'name' and 'professor' and 'active' not in data:
+    if 'name' and 'professor_id' and 'active' not in data:
         raise KeyError
     
-    if data['name'] == "" or data['professor'] == "" or data['active'] == "":
+    if data['name'] == "" or data['professor_id'] == "" or data['active'] == "":
         raise EmptyStringError
     
-    for professor in professores:
-        if professor['id'] == data['professor']:
-            professorExiste = True
-            break
+    if not professor:
+        raise IdNotExist("O Id do professor não existe.")
 
-    if not professorExiste:
-        raise IdNotExist('O Id de professor não existe')
+    classroom.name = data['name']
+    classroom.professor_id = data['professor_id']
+    classroom.active = data['active']
 
-    for turma in turmas:
-            if turma['id'] == int(id):
-                turma['name'] = data['name']
-                turma['professor'] = data['professor']
-                turma['active'] = data['active']
+    db.session.commit()
 
-def deleteClass(id):
-    idExiste = False
+def deleteClassroom(id):
+    classroom = Classroom.query.get(id)
 
-    for turma in turmas:
-        if turma['id'] == int(id):
-            idExiste = True
-            break
-
-    if not idExiste:
-        raise IdNotExist('O Id que você quer deletar não existe')
-
-    for turma in turmas:
-        if turma['id'] == int(id):
-            turmas.remove(turma)
-            turmas_deletadas.append(turma)
+    if not classroom:
+        raise IdNotExist("A turma que você quer deletar não foi encontrada.")
+    
+    db.session.delete(classroom)
+    db.session.commit()
