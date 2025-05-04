@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: grupo15-api
+    runtime: python
+    pythonVersion: "3.11"
+    buildCommand: pip install -r requirements.txt
+    startCommand: app:app -b localhost:$PORT
+    envVars:
+      - key: PORT
+        sync : false
+        value: 5000
+      - key: FLASK_APP
+        value: app.py
+      - key: PYTHONPATH
+        value: app.py
+    plan: free
