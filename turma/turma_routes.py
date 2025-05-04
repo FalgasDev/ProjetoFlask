@@ -1,50 +1,50 @@
 from flask import Blueprint, jsonify, request
-from .turma_model import addClass, getClasses, getClassById, attClass, deleteClass
+from .turma_model import addClassroom, getClassrooms, getClassroomById, updateClassroom, deleteClassroom
 from errors import EmptyStringError, IdNotExist
 
-turma_blueprint = Blueprint('turma', __name__)
+classroom_blueprint = Blueprint('turma', __name__)
 
-@turma_blueprint.route('/turmas', methods=['POST'])
-def create_turma():
+@classroom_blueprint.route('/turmas', methods=['POST'])
+def create_classroom():
     data = request.json
     try:
-        addClass(data)
+        addClassroom(data)
         return jsonify(data), 201
     except EmptyStringError:
-        return jsonify({'Error': 'As chaves não podem estar vazias'}), 400
+        return jsonify({'Error': 'As chaves não podem estar vazias.'}), 400
     except KeyError:
-        return jsonify({'Error': 'Você não passou alguma chave'}), 400
+        return jsonify({'Error': 'Você não passou alguma chave.'}), 400
     except IdNotExist as e:
-        return jsonify({'Error': e.message}), 404
-    
-@turma_blueprint.route("/turmas", methods = ['GET'])
-def get_turmas():
-    return jsonify(getClasses())
+        return jsonify({'Error': str(e)}), 404
 
-@turma_blueprint.route("/turmas/<id>", methods = ['GET'])
-def get_turma(id):
+@classroom_blueprint.route("/turmas", methods=['GET'])
+def get_classrooms():
+    return jsonify(getClassrooms())
+
+@classroom_blueprint.route("/turmas/<int:id>", methods=['GET'])
+def get_classroom(id):
     try:
-        return jsonify(getClassById(id)) 
+        return jsonify(getClassroomById(id)) 
     except IdNotExist as e:
-        return jsonify({'Error': e.message}), 404
+        return jsonify({'Error': str(e)}), 404
 
-@turma_blueprint.route("/turmas/<id>", methods = ['PUT'])
-def update_turma(id):
+@classroom_blueprint.route("/turmas/<int:id>", methods=['PUT'])
+def update_classroom(id):
     data = request.json
     try:
-        attClass(id, data)
-        return(getClassById(id))
+        updateClassroom(id, data)
+        return jsonify(getClassroomById(id))
     except EmptyStringError:
-        return jsonify({'Error': 'As chaves não podem estar vazias'}), 400
+        return jsonify({'Error': 'As chaves não podem estar vazias.'}), 400
     except KeyError:
-        return jsonify({'Error': 'Você não passou alguma chave'}), 400
+        return jsonify({'Error': 'Você não passou alguma chave.'}), 400
     except IdNotExist as e:
-        return jsonify({'Error': e.message}), 404
+        return jsonify({'Error': str(e)}), 404
 
-@turma_blueprint.route("/turmas/<id>", methods = ['DELETE'])
-def delete_turma(id):
+@classroom_blueprint.route("/turmas/<int:id>", methods=['DELETE'])
+def delete_classroom(id):
     try:
-        deleteClass(id)
+        deleteClassroom(id)
         return jsonify({'Success': True})
     except IdNotExist as e:
-        return jsonify({'Error': e.message}), 404
+        return jsonify({'Error': str(e)}), 404
