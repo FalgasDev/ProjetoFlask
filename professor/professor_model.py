@@ -1,77 +1,83 @@
 from errors import EmptyStringError, IdNotExist
+from config import db
 
-professores = []
-professores_deletados = []
+class Professor(db.Model):
+    __tablename__ = "professors"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+    subject = db.Column(db.String(100), nullable=False)
+    info = db.Column(db.String(255), nullable=True)
+
+    def __init__(self, name, age, subject, info):
+        self.name = name
+        self.age = age
+        self.subject = subject
+        self.info = info
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "age": self.age,
+            "subject": self.subject,
+            "info": self.info
+        }
 
 def addProfessor(data):
     if 'name' and 'age' and 'subject' and 'info' not in data:
         raise KeyError
-        
+    
     if data['name'] == "" or data['age'] == "" or data['subject'] == "" or data['info'] == "":
         raise EmptyStringError
 
-    professores.append({
-        "name": data['name'], 
-        "id": len(professores) + len(professores_deletados) + 1, 
-        "age": data['age'], 
-        "subject": data['subject'], 
-        "info": data['info']
-        })
-    
+    professor = Professor(
+        name=data['name'],
+        age=data['age'],
+        subject=data['subject'],
+        info=data['info']
+    )
+
+    db.session.add(professor)
+    db.session.commit()
+
 def getProfessors():
-    return professores
+    professors = Professor.query.all()
+    return [professor.to_dict() for professor in professors]
 
 def getProfessorById(id):
-    data = {}
-    idExiste = False
+    professor = Professor.query.get(id)
 
-    for professor in professores:
-        if professor['id'] == int(id):
-            data = professor
-            idExiste = True
-            break
-        
-    if not idExiste:
-        raise IdNotExist('O Id que você está procurando não existe')
+    if not professor:
+        raise IdNotExist("O professor não foi encontrado.")
     
-    return data
+    return professor.to_dict()
 
-def attProfessor(id, data):
-    idExiste = False
+def updateProfessor(id, data):
+    professor = Professor.query.get(id)
 
-    for professor in professores:
-        if professor['id'] == int(id):
-            idExiste = True
-            break
-        
-    if not idExiste:
-        raise IdNotExist('O Id que você quer atualizar não existe')
-    
+    if not professor:
+        raise IdNotExist("O professor que você quer atualizar não foi encontrado.")
+
     if 'name' and 'age' and 'subject' and 'info' not in data:
         raise KeyError
     
     if data['name'] == "" or data['age'] == "" or data['subject'] == "" or data['info'] == "":
         raise EmptyStringError
 
-    for professor in professores:
-        if professor['id'] == int(id):
-            professor['name'] = data['name']
-            professor['age'] = data['age']
-            professor['subject'] = data['subject']
-            professor['info'] = data['info']
+    professor.name = data['name']
+    professor.age = data['age']
+    professor.subject = data['subject']
+    professor.info = data['info']
+
+    db.session.commit()
 
 def deleteProfessor(id):
-    idExiste = False
+    professor = Professor.query.get(id)
 
-    for professor in professores:
-        if professor['id'] == int(id):
-            idExiste = True
-            break
+    if not professor:
+        raise IdNotExist("O professor que você quer deletar não foi encontrado.")
     
-    if not idExiste:
-        raise IdNotExist('O Id que você quer deletar não existe')
-
-    for professor in professores:
-        if professor['id'] == int(id):
-            professores.remove(professor)
-            professores_deletados.append(professor)
+    db.session.delete(professor)
+    db.session.commit()
