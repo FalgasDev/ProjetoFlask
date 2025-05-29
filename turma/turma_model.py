@@ -9,18 +9,21 @@ class Classroom(db.Model):
     name = db.Column(db.String(100), nullable=False)
     professor_id = db.Column(db.Integer, db.ForeignKey("professors.id"))
     active = db.Column(db.Boolean, default=True)
+    reserved = db.Column(db.Boolean, default=False)
 
-    def __init__(self, name, professor_id, active=True):
+    def __init__(self, name, professor_id, active=True, reserved=False):
         self.name = name
         self.professor_id = professor_id
         self.active = active
+        self.reserved = reserved
 
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
             "professor_id": self.professor_id,
-            "active": self.active
+            "active": self.active,
+            "reserved": self.reserved
         }
 
 def addClassroom(data):
@@ -75,6 +78,9 @@ def updateClassroom(id, data):
     classroom.name = data['name']
     classroom.professor_id = data['professor_id']
     classroom.active = data['active']
+    
+    if 'reserved' in data:
+        classroom.reserved = data['reserved']
 
     db.session.commit()
 
