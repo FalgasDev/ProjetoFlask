@@ -1,8 +1,8 @@
--- Sistema de Gerenciamento Escolar - API Principal (Alunos, Professores e Turmas) --
+# Sistema de Gerenciamento Escolar - API Principal (Alunos, Professores e Turmas)
 
-## Este repositório contém a API principal do sistema de gerenciamento escolar, responsável pelo cadastro e manutenção de alunos, professores e turmas. Esta API integra um ecossistema de microsserviços que inclui também os serviços de reserva de salas e atividades realizadas por professores. ##
+ Este repositório contém a **API principal** do sistema de gerenciamento escolar, responsável pelo cadastro e manutenção de alunos, professores e turmas. Esta API integra um ecossistema de microsserviços que inclui também os serviços de reserva de salas e atividades realizadas por professores.
 
--- Descrição da API
+## Descrição da API
 
 **A API principal fornece endpoints RESTful para:**
 
@@ -14,24 +14,24 @@
 
 🔄 Associar alunos a turmas e professores a turmas
 
-# Ela serve como núcleo do sistema, armazenando as entidades principais e fornecendo dados de base para os demais microsserviços.
+**Ela serve como núcleo do sistema, armazenando as entidades principais e fornecendo dados de base para os demais microsserviços.**
 
--- Instruções de Execução com Docker
+## Instruções de Execução com Docker
 
-# Pré-requisitos
+### Pré-requisitos
 
 - Docker
 
 - Docker Compose
 
-# Como executar o projeto
+## Como executar o projeto
 
-## Clone o repositório:
+### Clone o repositório:
 
 git clone `https://github.com/FalgasDev/ProjetoFlask.git`
 cd ProjetoFlask
 
-## Execute os serviços com Docker Compose:
+### Execute os serviços com Docker Compose:
 
 docker-compose up --build
 
@@ -39,7 +39,7 @@ docker-compose up --build
 
 `http://localhost:5000`
 
-# Endpoints disponíveis
+### Endpoints disponíveis
 
 `/alunos (GET, POST)`
 
@@ -53,7 +53,7 @@ docker-compose up --build
 
 `/turmas/<id> (GET, PUT, DELETE)`
 
-# Arquitetura Utilizada
+## Arquitetura Utilizada
 
 Este sistema utiliza uma arquitetura baseada em:
 
@@ -65,7 +65,7 @@ Este sistema utiliza uma arquitetura baseada em:
 
 4- **SQLite/PostgreSQL:** como banco de dados (dependendo do ambiente de desenvolvimento)
 
-# Estruturas de pastas
+## Estruturas de pastas
 
 api-principal/
 │
@@ -85,23 +85,23 @@ api-principal/
 ├── requirements.txt
 └── tests.py
 
-# Integração com o ecossitemas de Microsserviços
+## Integração com o ecossitemas de Microsserviços
 
 O sistema foi desenvolvido com com uma arquitetura de microsserviços, cada um com a sua função e responsabilidades distintas:
 
-# 1. API Principal (este repositório)
--- Responsável pelas entidades centrais: alunos, professores, turmas
--- Fornece dados de base para os outros serviços
-# 2. API de Reserva de Salas
--- Gerencia reservas de salas para as turmas cadastradas na API principal
--- Comunicação feita via chamadas HTTP REST
+### 1. API Principal (este repositório)
+- Responsável pelas entidades centrais: alunos, professores, turmas
+- Fornece dados de base para os outros serviços
+### 2. API de Reserva de Salas
+- Gerencia reservas de salas para as turmas cadastradas na API principal
+- Comunicação feita via chamadas HTTP REST
 - Exemplo de interação: busca dados da turma por ID para associar à reserva
-# 3. API de Atividades dos Professores
--- Armazena e exibe atividades realizadas pelos professores (ex: aulas, palestras, projetos)
--- Consome dados da API principal para obter detalhes do professor
+### 3. API de Atividades dos Professores
+- Armazena e exibe atividades realizadas pelos professores (ex: aulas, palestras, projetos)
+- Consome dados da API principal para obter detalhes do professor
 
 
-# Integração entre os serviços
+## Integração entre os serviços
 
 1- Cada microsserviço possui seu próprio banco de dados
 
@@ -110,30 +110,32 @@ O sistema foi desenvolvido com com uma arquitetura de microsserviços, cada um c
 3- Os serviços podem rodar em contêineres separados e se comunicar via Docker
 
 
-# Contatos
+## Contatos
 - caso tenha duvidas ou sugestões, entre em contato com:
+
 **NOMES**
-# Kaio Nogueira Mungo
-# Diego da Silva Criscuolo
-# Bruna Bispo Andreata
-# Luiz Henrique Barros Calazans
-# Fábio Luiz Garrote Ramaldes
+### Kaio Nogueira Mungo
+### Diego da Silva Criscuolo
+### Bruna Bispo Andreata
+### Luiz Henrique Barros Calazans
+### Fábio Luiz Garrote Ramaldes
 
 **EMAIL**
-# kaio.mungo@aluno.faculdadeimpacta.com.br
-# diego.criscuolo@aluno.faculdadeimpacta.com.br
-# bruna.andreata@aluno.faculdadeimpacta.com.br
-# luiz.calazans@aluno.faculdadeimpacta.com.br
-# fabio.ramaldes@aluno.faculdadeimpacta.com.br
+### kaio.mungo@aluno.faculdadeimpacta.com.br
+### diego.criscuolo@aluno.faculdadeimpacta.com.br
+### bruna.andreata@aluno.faculdadeimpacta.com.br
+### luiz.calazans@aluno.faculdadeimpacta.com.br
+### fabio.ramaldes@aluno.faculdadeimpacta.com.br
 
 **GITHUB**
-# https://github.com/KaioMungo
-# https://github.com/Diego09cr
-# https://github.com/BrunaAndreata
-# https://github.com/LuizCalazans
-# https://github.com/FalgasDev
+### https://github.com/KaioMungo
+### https://github.com/Diego09cr
+### https://github.com/BrunaAndreata
+### https://github.com/LuizCalazans
+### https://github.com/FalgasDev
 
-📜 Licença
+
+## 📜 Licença
 **Este projeto está licenciado sob os contatos acima.**
 
 
